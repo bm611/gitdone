@@ -1,25 +1,32 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@theme {
-  --font-serif: "Geist Sans", "Helvetica Neue", "Arial", sans-serif;
-  --font-body: "Geist Sans", "Helvetica Neue", "Arial", sans-serif;
-
-  --color-cream: #f3f3f3;
-  --color-cream-dark: #e3e3e3;
-  --color-ink: #111111;
-  --color-ink-light: #2b2b2b;
-  --color-ink-muted: #5f5f5f;
-  --color-ink-faint: #a6a6a6;
-  --color-gold: #222222;
-  --color-gold-light: #d7d7d7;
-  --color-gold-dark: #3a3a3a;
-  --color-divider: #d2d2d2;
-  --color-overlay: rgba(17, 17, 17, 0.45);
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
 }
 
-:root {
-  --app-bg: var(--color-cream);
+@theme {
+  --font-pixel: "Geist Pixel", monospace;
+  --font-body: "Figtree", "Geist Sans", "Helvetica Neue", "Arial", sans-serif;
+
+  --color-bg: #e8e8e8;
+  --color-card: #f5f5f5;
+  --color-white: #ffffff;
+  --color-ink: #1a1a1a;
+  --color-ink-light: #333333;
+  --color-ink-muted: #6b7280;
+  --color-ink-faint: #9ca3af;
+  --color-divider: #d1d5db;
+  --color-cell-empty: #d1d5db;
+  --color-cell-done: #4ade80;
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-pill-bg: #e5e7eb;
+  --color-pill-text: #6b7280;
+  --color-btn-create-bg: #e5e7eb;
+  --color-btn-create-text: #374151;
 }
 
 html,
@@ -30,7 +37,7 @@ body,
 
 body {
   margin: 0;
-  background: var(--app-bg);
+  background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: 14px;
@@ -40,104 +47,189 @@ body {
 }
 
 ::selection {
-  background: var(--color-cream-dark);
+  background: var(--color-divider);
   color: var(--color-ink);
 }
 
 @layer components {
-  .luxury-heading {
-    font-family: var(--font-body);
-    font-weight: 500;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
+  .habit-header-bar {
+    background: var(--color-card);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .luxury-heading-italic {
-    font-family: var(--font-body);
-    font-weight: 500;
-    font-style: normal;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
+  .habit-card {
+    background: var(--color-card);
+    border-radius: 16px;
+    padding: 1.25rem;
   }
 
-  .luxury-subheading {
-    font-family: var(--font-body);
+  .habit-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--color-pill-bg);
+    color: var(--color-pill-text);
+    font-size: 0.75rem;
     font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.64rem;
-    color: var(--color-ink-muted);
-  }
-
-  .luxury-btn {
-    font-family: var(--font-body);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.66rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-ink);
-    background: transparent;
-    color: var(--color-ink);
+    padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    cursor: pointer;
-    transition: all 0.2s ease;
   }
 
-  .luxury-btn:hover {
+  .habit-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--color-ink-muted);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .habit-icon-btn:hover {
+    background: var(--color-divider);
+    color: var(--color-ink);
+  }
+
+  .habit-btn-create {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
     background: var(--color-ink);
-    color: var(--color-cream);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .habit-btn-create:hover {
+    background: var(--color-ink-light);
+  }
+
+  .habit-input {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    background: var(--color-white);
+    border: 1.5px solid var(--color-divider);
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+  }
+
+  .habit-input:focus {
+    border-color: #818cf8;
+  }
+
+  .habit-input::placeholder {
+    color: var(--color-ink-faint);
   }
 
   .luxury-btn-filled {
     font-family: var(--font-body);
     font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.66rem;
+    font-size: 0.8rem;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--color-ink);
+    border: none;
     background: var(--color-ink);
-    color: var(--color-cream);
-    border-radius: 9999px;
+    color: white;
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.15s ease;
   }
 
   .luxury-btn-filled:hover {
-    background: var(--color-ink-muted);
-    border-color: var(--color-ink-muted);
+    background: var(--color-ink-light);
   }
 
   .luxury-btn-ghost {
     font-family: var(--font-body);
     font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-size: 0.63rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 9999px;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
     background: transparent;
     color: var(--color-ink-muted);
     cursor: pointer;
     border: none;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.15s ease, background-color 0.15s ease;
   }
 
   .luxury-btn-ghost:hover {
     color: var(--color-ink);
-    background: var(--color-cream-dark);
+    background: var(--color-divider);
   }
 
-  .luxury-card {
-    background: white;
-    border: 1px solid var(--color-divider);
-    border-radius: 16px;
+  .luxury-btn {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid var(--color-divider);
+    background: transparent;
+    color: var(--color-ink);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .luxury-btn:hover {
+    background: var(--color-ink);
+    color: white;
+  }
+
+  .luxury-heading {
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .luxury-heading-italic {
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .luxury-subheading {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+  }
+
+  .luxury-input {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    background: var(--color-white);
+    border: 1.5px solid var(--color-divider);
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    color: var(--color-ink);
+    outline: none;
     transition: border-color 0.2s ease;
+    width: 100%;
   }
 
-  .luxury-card:hover {
-    border-color: var(--color-ink-faint);
+  .luxury-input:focus {
+    border-color: #818cf8;
+  }
+
+  .luxury-input::placeholder {
+    color: var(--color-ink-faint);
   }
 
   .luxury-divider {
@@ -146,25 +238,9 @@ body {
     border: none;
   }
 
-  .luxury-input {
-    font-family: var(--font-body);
-    font-size: 0.875rem;
-    background: white;
-    border: 1px solid var(--color-divider);
-    border-radius: 9999px;
-    padding: 0.5rem 0.85rem;
-    color: var(--color-ink);
-    outline: none;
-    transition: border-color 0.2s ease;
-    width: 100%;
-  }
-
-  .luxury-input:focus {
-    border-color: var(--color-ink);
-  }
-
-  .luxury-input::placeholder {
-    color: var(--color-ink-faint);
-    font-style: normal;
+  .luxury-card {
+    background: var(--color-card);
+    border: none;
+    border-radius: 16px;
   }
 }

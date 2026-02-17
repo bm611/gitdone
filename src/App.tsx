@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -10,6 +10,21 @@ import { UserMenu } from "./components/UserMenu";
 import { SignIn } from "./components/SignIn";
 
 const GUEST_HABITS_STORAGE_KEY = "gitdone.guest.habits.v1";
+
+const PASTEL_COLORS = [
+  { name: "Rose", value: "#fbb4b4" },
+  { name: "Peach", value: "#fcd5b4" },
+  { name: "Banana", value: "#fef3b4" },
+  { name: "Mint", value: "#b4fcd5" },
+  { name: "Sage", value: "#b4f0e0" },
+  { name: "Sky", value: "#b4d8fc" },
+  { name: "Periwinkle", value: "#b4b8fc" },
+  { name: "Lavender", value: "#d5b4fc" },
+  { name: "Mauve", value: "#f0b4e0" },
+  { name: "Blush", value: "#fcb4d8" },
+];
+
+const DEFAULT_COLOR = PASTEL_COLORS[3].value;
 
 type HabitDraft = { name: string; color: string };
 
@@ -74,6 +89,22 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
+  const [newHabitName, setNewHabitName] = useState("");
+  const [newHabitColor, setNewHabitColor] = useState(DEFAULT_COLOR);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setColorPickerOpen(false);
+      }
+    }
+    if (colorPickerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [colorPickerOpen]);
 
   const handleCloseForm = () => {
     setShowForm(false);
@@ -124,6 +155,21 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
     });
   };
 
+  const handleInlineCreate = async () => {
+    const trimmed = newHabitName.trim();
+    if (!trimmed) return;
+    await handleSubmitHabit({ name: trimmed, color: newHabitColor });
+    setNewHabitName("");
+    setNewHabitColor(DEFAULT_COLOR);
+  };
+
+  const handleInlineKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      void handleInlineCreate();
+    }
+  };
+
   const handleToggleGuestCompletion = (habitId: string, date: string) => {
     handleSaveGuestHabits((current) =>
       current.map((habit) => {
@@ -163,80 +209,93 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 
   const showAuthLoading = isAuthenticated && habits === undefined;
-  const hasHabits = isAuthenticated
-    ? (habits?.length ?? 0) > 0
-    : sortedGuestHabits.length > 0;
 
   return (
-    <div className="min-h-dvh bg-[var(--color-cream)] text-[var(--color-ink)] font-body">
-      <header className="border-b border-[var(--color-divider)]">
-        <div className="mx-auto max-w-3xl px-6 py-8 flex items-end justify-between">
-          <div>
-            <h1 className="luxury-heading text-4xl sm:text-5xl tracking-tight">
-              Git<em className="luxury-heading-italic">Done</em>
-            </h1>
-            <p className="luxury-subheading mt-2">Daily Rituals</p>
-          </div>
+    <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-ink)] font-body">
+      <div className="mx-auto max-w-2xl px-4 py-6 space-y-4">
+        {/* Header bar */}
+        <div className="habit-header-bar">
+          <span className="text-lg font-pixel">GitDone</span>
           {isAuthenticated ? (
             <UserMenu />
-          ) : null}
+          ) : (
+            <span className="text-sm font-medium text-[var(--color-ink-muted)]">sync</span>
+          )}
         </div>
-      </header>
 
-      <main className="mx-auto max-w-3xl px-6">
+        {/* Sign in (unauthenticated) */}
         {!isAuthenticated && (
-          <div className="py-16 flex justify-center">
+          <div className="py-8 flex justify-center">
             <SignIn />
           </div>
         )}
 
-        {isAuthenticated && (
-          <section className="py-12">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="luxury-subheading">
-                  {habits?.length ?? 0} {(habits?.length ?? 0) === 1 ? "Ritual" : "Rituals"}
-                </p>
+        {/* Inline create form */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={newHabitName}
+            onChange={(e) => setNewHabitName(e.target.value)}
+            onKeyDown={handleInlineKeyDown}
+            placeholder="New habit name..."
+            className="habit-input flex-1"
+          />
+          <div ref={colorPickerRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setColorPickerOpen(!colorPickerOpen)}
+              className="w-9 h-9 rounded-xl border-2 border-[var(--color-divider)] shrink-0 cursor-pointer transition-transform hover:scale-105"
+              style={{ backgroundColor: newHabitColor }}
+              aria-label="Pick color"
+              title="Pick color"
+            />
+            {colorPickerOpen && (
+              <div className="absolute right-0 top-full mt-2 z-30 bg-white rounded-xl shadow-lg border border-[var(--color-divider)] p-2 grid grid-cols-5 gap-1.5 w-max">
+                {PASTEL_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => {
+                      setNewHabitColor(c.value);
+                      setColorPickerOpen(false);
+                    }}
+                    aria-label={c.name}
+                    title={c.name}
+                    className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110"
+                    style={{
+                      backgroundColor: c.value,
+                      outline: newHabitColor === c.value ? "2px solid var(--color-ink)" : "none",
+                      outlineOffset: "2px",
+                    }}
+                  />
+                ))}
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingHabit(null);
-                  setShowForm(true);
-                }}
-                className="luxury-btn"
-              >
-                New Ritual
-              </button>
-            </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleInlineCreate()}
+            disabled={!newHabitName.trim()}
+            className="habit-btn-create disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            + create
+          </button>
+        </div>
 
+        {/* Authenticated habit list */}
+        {isAuthenticated && (
+          <>
             {showAuthLoading ? (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="luxury-card p-8 animate-pulse">
-                    <div className="h-5 w-32 bg-[var(--color-cream-dark)] mb-4" />
-                    <div className="h-[80px] bg-[var(--color-cream-dark)]" />
+                  <div key={i} className="habit-card animate-pulse">
+                    <div className="h-5 w-32 bg-[var(--color-divider)] rounded mb-4" />
+                    <div className="h-[80px] bg-[var(--color-divider)] rounded" />
                   </div>
                 ))}
               </div>
-            ) : !hasHabits ? (
-              <div className="text-center py-24">
-                <p className="luxury-heading-italic text-3xl text-[var(--color-ink-muted)] mb-2">
-                  Nothing yet
-                </p>
-                <p className="text-sm text-[var(--color-ink-muted)] mb-8 font-body">
-                  Begin by creating your first daily ritual.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setShowForm(true)}
-                  className="luxury-btn"
-                >
-                  Create Ritual
-                </button>
-              </div>
             ) : (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {habits?.map((habit) => (
                   <HabitCard
                     key={habit._id}
@@ -252,53 +311,29 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                 ))}
               </div>
             )}
-          </section>
+          </>
         )}
 
-        {!isAuthenticated && hasHabits && (
-          <section className="py-12">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="luxury-subheading">
-                  {sortedGuestHabits.length} {sortedGuestHabits.length === 1 ? "Ritual" : "Rituals"}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingHabit(null);
+        {/* Guest habit list */}
+        {!isAuthenticated && sortedGuestHabits.length > 0 && (
+          <div className="space-y-4">
+            {sortedGuestHabits.map((habit) => (
+              <GuestHabitCard
+                key={habit.id}
+                habit={habit}
+                onEdit={(current) => {
+                  setEditingHabit({ type: "guest", habit: current });
                   setShowForm(true);
                 }}
-                className="luxury-btn"
-              >
-                New Ritual
-              </button>
-            </div>
-            <div className="space-y-8">
-              {sortedGuestHabits.map((habit) => (
-                <GuestHabitCard
-                  key={habit.id}
-                  habit={habit}
-                  onEdit={(current) => {
-                    setEditingHabit({ type: "guest", habit: current });
-                    setShowForm(true);
-                  }}
-                  onDelete={(current) =>
-                    setDeletingHabit({ type: "guest", habit: current })
-                  }
-                  onToggleDate={handleToggleGuestCompletion}
-                />
-              ))}
-            </div>
-          </section>
+                onDelete={(current) =>
+                  setDeletingHabit({ type: "guest", habit: current })
+                }
+                onToggleDate={handleToggleGuestCompletion}
+              />
+            ))}
+          </div>
         )}
-      </main>
-
-      <footer className="border-t border-[var(--color-divider)] mt-16">
-        <div className="mx-auto max-w-3xl px-6 py-8 text-center">
-          <p className="luxury-subheading">GitDone</p>
-        </div>
-      </footer>
+      </div>
 
       {showForm && (
         <HabitForm
@@ -312,7 +347,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
       {deletingHabit && (
         <ConfirmDialog
           title={`Remove "${deletingHabit.habit.name}"?`}
-          description="This ritual and all its history will be permanently removed."
+          description="This habit and all its history will be permanently removed."
           confirmLabel="Remove"
           onConfirm={handleConfirmDelete}
           onCancel={() => setDeletingHabit(null)}
@@ -327,12 +362,12 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-cream)]">
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
         <div className="text-center">
-          <h1 className="luxury-heading-italic text-3xl text-[var(--color-ink-muted)]">
+          <h1 className="text-2xl font-pixel text-[var(--color-ink-muted)]">
             GitDone
           </h1>
-          <div className="mt-4 w-12 h-[1px] bg-[var(--color-gold)] mx-auto animate-pulse" />
+          <div className="mt-4 w-8 h-1 bg-[var(--color-divider)] mx-auto rounded animate-pulse" />
         </div>
       </div>
     );

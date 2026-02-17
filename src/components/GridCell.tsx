@@ -1,6 +1,3 @@
-import { useState, useRef, useEffect } from "react";
-import { cn } from "../lib/cn";
-
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
@@ -13,51 +10,29 @@ function formatDisplayDate(date: string): string {
 
 interface GridCellProps {
   isCompleted: boolean;
-  color: string;
+  color?: string;
   date: string;
   onClick: () => void;
-  fill?: boolean;
-  tiny?: boolean;
 }
 
-export function GridCell({ isCompleted, color, date, onClick, fill, tiny }: GridCellProps) {
+export function GridCell({ isCompleted, date, onClick }: GridCellProps) {
   const display = formatDisplayDate(date);
-  const [, setShowTooltip] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const handlePointerDown = () => {
-    setShowTooltip(true);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setShowTooltip(false), 1200);
-  };
 
   return (
-    <div className="relative group/cell">
+    <div className="relative group/cell leading-none">
       <button
         type="button"
         aria-label={`${display}${isCompleted ? ", completed" : ""}`}
         onClick={onClick}
-        onPointerDown={handlePointerDown}
         title={display}
-        className={cn(
-          "cursor-pointer rounded-full transition-colors duration-150 border border-[var(--color-divider)]",
-          tiny ? "w-2 h-2" : fill ? "w-full h-full" : "w-2.5 h-2.5",
-          !isCompleted && "hover:bg-[var(--color-ink-faint)]/35"
-        )}
+        className="block w-full aspect-square p-0 m-0 cursor-pointer rounded-[3px] border-none transition-colors duration-100 hover:opacity-80"
         style={{
-          backgroundColor: isCompleted ? color : "var(--color-cream-dark)",
-          borderColor: isCompleted ? "var(--color-ink-light)" : "var(--color-divider)",
+          backgroundColor: isCompleted ? "var(--color-cell-done)" : "var(--color-cell-empty)",
         }}
       />
 
       <div className="hidden group-hover/cell:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 pointer-events-none">
-        <div className="bg-[var(--color-ink)] text-white text-[10px] font-body tracking-wide px-2 py-1 rounded-md whitespace-nowrap shadow-lg">
+        <div className="bg-[var(--color-ink)] text-white text-[9px] font-body tracking-wide px-2 py-1 rounded-md whitespace-nowrap shadow-lg">
           {display}
         </div>
       </div>

@@ -5,19 +5,22 @@ export interface DayCell {
   month: number;
 }
 
-export function generateLast365Grid(): DayCell[] {
+export function generateCalendarMonthsGrid(
+  monthCount: number,
+  endDate: Date = new Date(),
+): DayCell[] {
+  if (monthCount < 1) return [];
+
   const cells: DayCell[] = [];
-  const today = new Date();
+  const today = new Date(endDate);
   today.setHours(0, 0, 0, 0);
 
-  const startDate = new Date(today);
-  startDate.setDate(startDate.getDate() - 364);
-
-  // Align start to Sunday
-  const startDayOfWeek = startDate.getDay();
-  if (startDayOfWeek !== 0) {
-    startDate.setDate(startDate.getDate() - startDayOfWeek);
-  }
+  const startDate = new Date(
+    today.getFullYear(),
+    today.getMonth() - (monthCount - 1),
+    1,
+  );
+  startDate.setHours(0, 0, 0, 0);
 
   let weekIndex = 0;
   const current = new Date(startDate);
@@ -49,6 +52,8 @@ export function formatDate(date: Date): string {
 }
 
 export function getMonthLabels(cells: DayCell[]): { label: string; weekIndex: number }[] {
+  if (cells.length === 0) return [];
+
   const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",

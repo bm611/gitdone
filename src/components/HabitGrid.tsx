@@ -1,30 +1,11 @@
-import { useMemo, useRef, useEffect, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { generateLast365Grid, getMonthLabels } from "../lib/dates";
+import type { DayCell } from "../lib/dates";
+import { generateCalendarMonthsGrid } from "../lib/dates";
 import { GridCell } from "./GridCell";
 import { HabitGridSkeleton } from "./HabitGridSkeleton";
-
-const MOBILE_QUERY = "(max-width: 639px)";
-
-function subscribeMobile(cb: () => void) {
-  const mql = window.matchMedia(MOBILE_QUERY);
-  mql.addEventListener("change", cb);
-  return () => mql.removeEventListener("change", cb);
-}
-
-function getIsMobile() {
-  return window.matchMedia(MOBILE_QUERY).matches;
-}
-
-function getIsMobileServer() {
-  return false;
-}
-
-function useIsMobile() {
-  return useSyncExternalStore(subscribeMobile, getIsMobile, getIsMobileServer);
-}
 
 interface HabitGridProps {
   color: string;
@@ -34,11 +15,55 @@ interface HabitGridProps {
   interactive?: boolean;
 }
 
-const CELL_SIZE = 10;
-const GAP = 2;
-const STEP = CELL_SIZE + GAP;
-const MOBILE_CELL_SIZE = 10;
-const MOBILE_GAP = 2;
+const GRID_MONTH_WINDOW = 6;
+
+const FULL_MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const SHORT_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+interface MonthGroup {
+  label: string;
+  shortLabel: string;
+  rows: (DayCell | null)[][];
+}
+
+function groupByMonth(cells: DayCell[]): MonthGroup[] {
+  if (cells.length === 0) return [];
+
+  const groups: MonthGroup[] = [];
+  let currentMonth = -1;
+  let lastGlobalWeek = -1;
+
+  for (const cell of cells) {
+    if (cell.month !== currentMonth) {
+      groups.push({
+        label: FULL_MONTHS[cell.month],
+        shortLabel: SHORT_MONTHS[cell.month],
+        rows: [],
+      });
+      currentMonth = cell.month;
+      lastGlobalWeek = -1;
+    }
+
+    const group = groups[groups.length - 1];
+
+    if (cell.weekIndex !== lastGlobalWeek) {
+      lastGlobalWeek = cell.weekIndex;
+      group.rows.push(Array(7).fill(null));
+    }
+
+    const row = group.rows[group.rows.length - 1];
+    row[cell.dayOfWeek] = cell;
+  }
+
+  return groups;
+}
 
 export function HabitGrid({
   habitId,
@@ -47,32 +72,20 @@ export function HabitGrid({
   onToggleDate,
   interactive = true,
 }: HabitGridProps) {
-  const isMobile = useIsMobile();
   const completions = useQuery(
     api.completions.listByHabit,
     habitId ? { habitId } : "skip",
   );
   const toggle = useMutation(api.completions.toggle);
 
-  const cells = useMemo(() => generateLast365Grid(), []);
-  const monthLabels = useMemo(() => getMonthLabels(cells), [cells]);
+  const cells = useMemo(() => generateCalendarMonthsGrid(GRID_MONTH_WINDOW), []);
+  const monthGroups = useMemo(() => groupByMonth(cells), [cells]);
 
   const completedDates = useMemo(() => {
     if (completionDates) return new Set(completionDates);
     if (!completions) return new Set<string>();
     return new Set(completions.map((c) => c.date));
   }, [completionDates, completions]);
-
-  const maxWeek = cells[cells.length - 1]?.weekIndex ?? 52;
-
-  const grid: (typeof cells[number] | null)[][] = Array.from(
-    { length: 7 },
-    () => Array(maxWeek + 1).fill(null),
-  );
-
-  for (const cell of cells) {
-    grid[cell.dayOfWeek][cell.weekIndex] = cell;
-  }
 
   const handleToggle = (date: string) => {
     if (!interactive) return;
@@ -83,94 +96,42 @@ export function HabitGrid({
     onToggleDate?.(date);
   };
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    if (isMobile) {
-      el.scrollTop = el.scrollHeight;
-    } else {
-      el.scrollLeft = el.scrollWidth;
-    }
-  }, [completedDates.size, isMobile]);
-
   if (habitId && !completions) {
     return <HabitGridSkeleton />;
   }
 
-  if (isMobile) {
-    return (
-      <div ref={scrollRef} className="overflow-y-auto max-h-[18rem]">
-        <div
-          className="grid justify-center"
-          style={{
-            gridTemplateColumns: `repeat(7, ${MOBILE_CELL_SIZE}px)`,
-            gridAutoRows: `${MOBILE_CELL_SIZE}px`,
-            gap: `${MOBILE_GAP}px`,
-          }}
-        >
-          {cells.map((cell) => (
-            <GridCell
-              key={cell.date}
-              date={cell.date}
-              isCompleted={completedDates.has(cell.date)}
-              color={color}
-              onClick={() => handleToggle(cell.date)}
-              fill
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div ref={scrollRef} className="overflow-x-auto">
-      <div className="inline-block">
-        <div className="flex mb-1.5" style={{ gap: `${GAP}px` }}>
-          {monthLabels.map((m, i) => {
-            const nextWeek = monthLabels[i + 1]?.weekIndex ?? maxWeek + 1;
-            const span = nextWeek - m.weekIndex;
-            return (
-              <span
-                key={m.label + m.weekIndex}
-                className="text-[8px] leading-none text-[var(--color-ink-faint)] font-body tracking-[0.08em] uppercase"
-                style={{ width: `${span * STEP - GAP}px` }}
-              >
-                {m.label}
-              </span>
-            );
-          })}
-        </div>
-
-        <div className="flex" style={{ gap: `${GAP}px` }}>
-          {Array.from({ length: maxWeek + 1 }, (_, weekIdx) => (
-            <div key={weekIdx} className="flex flex-col" style={{ gap: `${GAP}px` }}>
-              {Array.from({ length: 7 }, (_, dayIdx) => {
-                const cell = grid[dayIdx][weekIdx];
-                if (!cell) {
+    <div className="grid grid-cols-6 gap-3">
+      {monthGroups.map((group) => (
+        <div key={group.label} className="flex flex-col gap-1">
+          <span className="text-xs font-bold text-[var(--color-ink)] mb-0.5 truncate">
+            <span className="hidden sm:inline">{group.label}</span>
+            <span className="sm:hidden">{group.shortLabel}</span>
+          </span>
+          <div className="flex flex-col gap-[2px]">
+            {group.rows.map((row, rowIdx) => (
+              <div key={rowIdx} className="grid grid-cols-7 gap-[2px]">
+                {row.map((cell, dayIdx) => {
+                  if (!cell) {
+                    return (
+                      <div key={dayIdx} className="aspect-square rounded-[3px] bg-transparent" />
+                    );
+                  }
                   return (
-                    <div
-                      key={dayIdx}
-                      className="size-[10px] rounded-full bg-transparent"
+                    <GridCell
+                      key={cell.date}
+                      date={cell.date}
+                      isCompleted={completedDates.has(cell.date)}
+                      color={color}
+                      onClick={() => handleToggle(cell.date)}
                     />
                   );
-                }
-                return (
-                  <GridCell
-                    key={cell.date}
-                    date={cell.date}
-                    isCompleted={completedDates.has(cell.date)}
-                    color={color}
-                    onClick={() => handleToggle(cell.date)}
-                  />
-                );
-              })}
-            </div>
-          ))}
+                })}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 }

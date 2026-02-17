@@ -2,12 +2,16 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "../lib/cn";
 
 const COLORS = [
-  { name: "Charcoal", value: "#111111" },
-  { name: "Graphite", value: "#262626" },
-  { name: "Slate", value: "#404040" },
-  { name: "Stone", value: "#525252" },
-  { name: "Silver", value: "#737373" },
-  { name: "Mist", value: "#a3a3a3" },
+  { name: "Rose", value: "#fbb4b4" },
+  { name: "Peach", value: "#fcd5b4" },
+  { name: "Banana", value: "#fef3b4" },
+  { name: "Mint", value: "#b4fcd5" },
+  { name: "Sage", value: "#b4f0e0" },
+  { name: "Sky", value: "#b4d8fc" },
+  { name: "Periwinkle", value: "#b4b8fc" },
+  { name: "Lavender", value: "#d5b4fc" },
+  { name: "Mauve", value: "#f0b4e0" },
+  { name: "Blush", value: "#fcb4d8" },
 ];
 
 interface HabitFormProps {
@@ -56,32 +60,32 @@ export function HabitForm({
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-label={editingHabit ? "Edit ritual" : "New ritual"}
+      aria-label={editingHabit ? "Edit habit" : "New habit"}
       className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] font-body"
       onClick={handleOverlayClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-white w-full max-w-md mx-4 shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
-        <div className="p-8 sm:p-10">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="luxury-heading text-2xl">
-              {editingHabit ? "Edit Ritual" : "New Ritual"}
+      <div className="bg-[var(--color-card)] w-full max-w-md mx-4 rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.12)]">
+        <div className="p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="luxury-heading text-xl">
+              {editingHabit ? "Edit habit" : "New habit"}
             </h2>
             <button
               onClick={onClose}
-              className="luxury-btn-ghost text-[var(--color-ink-faint)] hover:text-[var(--color-ink)]"
+              className="habit-icon-btn"
               aria-label="Close"
             >
-              Close
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label
-                htmlFor="habit-name"
-                className="luxury-subheading block mb-3"
-              >
+              <label htmlFor="habit-name" className="luxury-subheading block mb-2">
                 Name
               </label>
               <input
@@ -91,12 +95,12 @@ export function HabitForm({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Morning meditation..."
-                className="luxury-input"
+                className="habit-input"
               />
             </div>
 
             <div>
-              <span className="luxury-subheading block mb-4">Shade</span>
+              <span className="luxury-subheading block mb-3">Color</span>
               <div className="flex gap-3">
                 {COLORS.map((c) => (
                   <button
@@ -105,9 +109,9 @@ export function HabitForm({
                     onClick={() => setColor(c.value)}
                     aria-label={c.name}
                     className={cn(
-                      "w-8 h-8 rounded-full transition-all duration-300",
+                      "w-7 h-7 rounded-full transition-all duration-200",
                       color === c.value
-                        ? "ring-1 ring-offset-4 ring-[var(--color-ink)]"
+                        ? "ring-2 ring-offset-3 ring-[var(--color-ink-muted)]"
                         : "hover:scale-110"
                     )}
                     style={{ backgroundColor: c.value }}
@@ -117,12 +121,12 @@ export function HabitForm({
             </div>
 
             {guestMode && (
-              <p className="text-xs text-[var(--color-ink-muted)] italic border-l-2 border-[var(--color-divider)] pl-4">
+              <p className="text-xs text-[var(--color-ink-muted)] bg-[var(--color-pill-bg)] rounded-lg px-3 py-2">
                 Guest mode — data is stored locally in your browser.
               </p>
             )}
 
-            <div className="flex items-center justify-end gap-4 pt-4">
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={onClose}

@@ -1,8 +1,6 @@
-import { useMemo } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc } from "../../convex/_generated/dataModel";
-import { todayString } from "../lib/dates";
 import { HabitGrid } from "./HabitGrid";
 
 interface HabitCardProps {
@@ -12,64 +10,55 @@ interface HabitCardProps {
 }
 
 export function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
-  const toggle = useMutation(api.completions.toggle);
   const completions = useQuery(api.completions.listByHabit, {
     habitId: habit._id,
   });
 
-  const today = todayString();
-  const isDoneToday = useMemo(() => {
-    if (!completions) return false;
-    return completions.some((c) => c.date === today);
-  }, [completions, today]);
-
   const completionCount = completions?.length ?? 0;
 
-  const handleToggleToday = () => {
-    void toggle({ habitId: habit._id, date: today });
-  };
-
   return (
-    <div className="luxury-card p-6 sm:p-8">
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={handleToggleToday}
-            className="group relative w-6 h-6 border border-[var(--color-ink-faint)] flex items-center justify-center transition-all duration-300 hover:border-[var(--color-ink)]"
-            aria-label={isDoneToday ? "Unmark today" : "Mark today as done"}
-          >
-            {isDoneToday && (
-              <svg className="w-3.5 h-3.5 text-[var(--color-ink)]" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M3 8.5L6.5 12L13 4" />
-              </svg>
-            )}
-          </button>
-          <div>
-            <h3 className="font-serif text-xl font-light tracking-tight">{habit.name}</h3>
-            <p className="luxury-subheading mt-0.5">
-              {completionCount} {completionCount === 1 ? "day" : "days"} &middot; {isDoneToday ? "Complete" : "Pending"}
-            </p>
-          </div>
-        </div>
+    <div className="habit-card">
+      <div className="flex items-center justify-between mb-4">
+        <h3
+          className="text-xl font-semibold tracking-tight bg-clip-text text-transparent"
+          style={{
+            backgroundImage: `linear-gradient(135deg, ${habit.color}, color-mix(in srgb, ${habit.color} 60%, #000))`,
+          }}
+        >
+          {habit.name}
+        </h3>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <span className="habit-pill">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            {completionCount} {completionCount === 1 ? "day" : "days"}
+          </span>
+
           <button
             type="button"
             onClick={() => onEdit(habit)}
             aria-label="Edit"
-            className="luxury-btn-ghost"
+            className="habit-icon-btn"
           >
-            Edit
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
           </button>
-          <span className="text-[var(--color-ink-faint)]">/</span>
+
           <button
             type="button"
             onClick={() => onDelete(habit)}
             aria-label="Delete"
-            className="luxury-btn-ghost"
+            className="habit-icon-btn"
           >
-            Remove
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
           </button>
         </div>
       </div>
