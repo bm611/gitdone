@@ -2,30 +2,25 @@ import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 
 export function SignIn() {
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-pixel text-gray-900 text-balance">
-          GitDone
-        </h1>
-        <p className="mt-2 text-sm text-gray-500 text-pretty">
-          Track your habits, one day at a time.
-        </p>
-      </div>
-      <div className="flex flex-col gap-3 w-full max-w-xs">
+    <div className="w-full max-w-md mx-auto text-center">
+      <p className="luxury-heading-italic text-4xl sm:text-5xl mb-4">
+        Welcome
+      </p>
+      <p className="text-sm text-[var(--color-ink-muted)] font-body mb-10 max-w-xs mx-auto leading-relaxed">
+        Cultivate your daily rituals with intention and grace.
+      </p>
+
+      <div className="w-12 h-[1px] bg-[var(--color-gold)] mx-auto mb-10" />
+
+      <div className="flex gap-4 justify-center">
         <SignInButton mode="redirect" forceRedirectUrl="/">
-          <button
-            type="button"
-            className="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 cursor-pointer"
-          >
-            Sign in
+          <button type="button" className="luxury-btn-filled">
+            Sign In
           </button>
         </SignInButton>
         <SignUpButton mode="redirect" forceRedirectUrl="/">
-          <button
-            type="button"
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-          >
-            Create account
+          <button type="button" className="luxury-btn">
+            Register
           </button>
         </SignUpButton>
       </div>

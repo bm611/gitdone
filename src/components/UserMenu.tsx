@@ -1,63 +1,57 @@
-import { SignOutButton, useClerk, useUser } from "@clerk/clerk-react";
-
-function getInitials(name?: string | null) {
-  if (!name) return "U";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "U";
-  if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
-  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-}
+import { useClerk, useUser } from "@clerk/clerk-react";
+import { useState, useRef, useEffect } from "react";
 
 export function UserMenu() {
-  const { openUserProfile } = useClerk();
+  const { signOut, openUserProfile } = useClerk();
   const { user } = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.primaryEmailAddress?.emailAddress ||
-    "Account";
+  const displayName = user?.username || user?.firstName || "Guest";
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isOpen]);
 
   return (
-    <details className="group relative">
-      <summary className="flex list-none cursor-pointer items-center gap-2 rounded-full border border-amber-200/80 bg-white/80 px-2 py-1.5 text-sm text-slate-700 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md [&::-webkit-details-marker]:hidden">
-        <span className="inline-flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-orange-500 text-xs font-bold text-white">
-          {getInitials(user?.fullName ?? user?.username)}
-        </span>
-        <span className="hidden max-w-[120px] truncate text-xs font-medium sm:block">
-          {displayName}
-        </span>
-        <svg
-          className="size-3 text-slate-500 transition group-open:rotate-180"
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M3.5 6.5L8 11l4.5-4.5" />
+    <div ref={menuRef} className="relative inline-block">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="luxury-btn-ghost flex items-center gap-2"
+      >
+        <span>{displayName}</span>
+        <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1">
+          <path d="M3 5L6 8L9 5" />
         </svg>
-      </summary>
+      </button>
 
-      <div className="absolute right-0 top-[calc(100%+0.5rem)] z-20 w-56 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-xl backdrop-blur animate-in fade-in zoom-in-95 duration-150">
-        <button
-          type="button"
-          onClick={() => openUserProfile()}
-          className="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-100"
-        >
-          Manage account
-        </button>
-
-        <SignOutButton>
-          <button
-            type="button"
-            className="mt-1 block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm text-rose-600 transition hover:bg-rose-50"
-          >
-            Sign out
-          </button>
-        </SignOutButton>
-      </div>
-    </details>
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-[var(--color-divider)] shadow-[0_8px_40px_rgba(0,0,0,0.08)] z-50">
+          <div className="py-2">
+            <button
+              onClick={() => { openUserProfile(); setIsOpen(false); }}
+              className="w-full text-left px-5 py-2.5 text-sm font-body text-[var(--color-ink-light)] hover:text-[var(--color-ink)] hover:bg-[var(--color-cream)] transition-colors duration-200"
+            >
+              Profile
+            </button>
+            <div className="luxury-divider mx-5 my-1" />
+            <button
+              onClick={() => signOut()}
+              className="w-full text-left px-5 py-2.5 text-sm font-body text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-cream)] transition-colors duration-200"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

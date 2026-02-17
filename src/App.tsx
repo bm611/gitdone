@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -8,6 +7,7 @@ import { GuestHabitCard, type GuestHabit } from "./components/GuestHabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { UserMenu } from "./components/UserMenu";
+import { SignIn } from "./components/SignIn";
 
 const GUEST_HABITS_STORAGE_KEY = "gitdone.guest.habits.v1";
 
@@ -168,164 +168,137 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
     : sortedGuestHabits.length > 0;
 
   return (
-    <div className="min-h-dvh bg-[var(--app-bg)] text-slate-900">
-      <main className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6">
-        <header className="flex items-center justify-between border-b border-slate-200 pb-4">
+    <div className="min-h-dvh bg-[var(--color-cream)] text-[var(--color-ink)] font-body">
+      <header className="border-b border-[var(--color-divider)]">
+        <div className="mx-auto max-w-3xl px-6 py-8 flex items-end justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
-              Daily Momentum
-            </p>
-            <h1 className="mt-1 text-2xl font-pixel text-slate-900">GitDone</h1>
+            <h1 className="luxury-heading text-4xl sm:text-5xl tracking-tight">
+              Git<em className="luxury-heading-italic">Done</em>
+            </h1>
+            <p className="luxury-subheading mt-2">Daily Rituals</p>
           </div>
-
           {isAuthenticated ? (
             <UserMenu />
-          ) : (
-            <div className="flex items-center gap-2">
-              <SignInButton mode="redirect" forceRedirectUrl="/">
-                <button
-                  type="button"
-                  className="cursor-pointer rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Log in
-                </button>
-              </SignInButton>
-              <SignUpButton mode="redirect" forceRedirectUrl="/">
-                <button
-                  type="button"
-                  className="cursor-pointer rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-                >
-                  Create account
-                </button>
-              </SignUpButton>
-            </div>
-          )}
-        </header>
+          ) : null}
+        </div>
+      </header>
 
-        <section
-          id="habits"
-          className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8"
-        >
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">Habit Board</h2>
-              <p className="mt-1 text-sm text-slate-600">
-                {isAuthenticated
-                  ? "Your habits are synced to your account."
-                  : "Guest mode is active. Login to save habits permanently."}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setEditingHabit(null);
-                setShowForm(true);
-              }}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-            >
-              <svg
-                className="size-4"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              >
-                <path d="M8 3v10M3 8h10" />
-              </svg>
-              New Habit
-            </button>
+      <main className="mx-auto max-w-3xl px-6">
+        {!isAuthenticated && (
+          <div className="py-16 flex justify-center">
+            <SignIn />
           </div>
+        )}
 
-          {showAuthLoading ? (
-            <div className="space-y-6">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="h-5 w-28 rounded bg-slate-200 animate-pulse" />
-                  <div className="rounded-lg border border-slate-200 bg-white p-3">
-                    <div className="h-[94px] rounded bg-slate-100 animate-pulse" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : !hasHabits ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-14 text-center">
-              <div className="flex size-12 items-center justify-center rounded-full bg-slate-100">
-                <svg
-                  className="size-6 text-slate-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <rect x="14" y="14" width="7" height="7" rx="1" />
-                </svg>
+        {isAuthenticated && (
+          <section className="py-12">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="luxury-subheading">
+                  {habits?.length ?? 0} {(habits?.length ?? 0) === 1 ? "Ritual" : "Rituals"}
+                </p>
               </div>
-              <p className="mt-4 text-sm font-semibold text-slate-900">
-                No habits yet
-              </p>
-              <p className="mt-1 max-w-md text-sm text-slate-600">
-                Add your first habit and start building momentum.
-                {!isAuthenticated && " Login to save habits permanently."}
-              </p>
               <button
                 type="button"
-                onClick={() => setShowForm(true)}
-                className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                onClick={() => {
+                  setEditingHabit(null);
+                  setShowForm(true);
+                }}
+                className="luxury-btn"
               >
-                <svg
-                  className="size-4"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                >
-                  <path d="M8 3v10M3 8h10" />
-                </svg>
-                New Habit
+                New Ritual
               </button>
             </div>
-          ) : (
-            <div className="space-y-8">
-              {isAuthenticated
-                ? habits?.map((habit) => (
-                    <HabitCard
-                      key={habit._id}
-                      habit={habit}
-                      onEdit={(current) => {
-                        setEditingHabit({ type: "remote", habit: current });
-                        setShowForm(true);
-                      }}
-                      onDelete={(current) =>
-                        setDeletingHabit({ type: "remote", habit: current })
-                      }
-                    />
-                  ))
-                : sortedGuestHabits.map((habit) => (
-                    <GuestHabitCard
-                      key={habit.id}
-                      habit={habit}
-                      onEdit={(current) => {
-                        setEditingHabit({ type: "guest", habit: current });
-                        setShowForm(true);
-                      }}
-                      onDelete={(current) =>
-                        setDeletingHabit({ type: "guest", habit: current })
-                      }
-                      onToggleDate={handleToggleGuestCompletion}
-                    />
-                  ))}
+
+            {showAuthLoading ? (
+              <div className="space-y-8">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div key={i} className="luxury-card p-8 animate-pulse">
+                    <div className="h-5 w-32 bg-[var(--color-cream-dark)] mb-4" />
+                    <div className="h-[80px] bg-[var(--color-cream-dark)]" />
+                  </div>
+                ))}
+              </div>
+            ) : !hasHabits ? (
+              <div className="text-center py-24">
+                <p className="luxury-heading-italic text-3xl text-[var(--color-ink-muted)] mb-2">
+                  Nothing yet
+                </p>
+                <p className="text-sm text-[var(--color-ink-muted)] mb-8 font-body">
+                  Begin by creating your first daily ritual.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(true)}
+                  className="luxury-btn"
+                >
+                  Create Ritual
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {habits?.map((habit) => (
+                  <HabitCard
+                    key={habit._id}
+                    habit={habit}
+                    onEdit={(current) => {
+                      setEditingHabit({ type: "remote", habit: current });
+                      setShowForm(true);
+                    }}
+                    onDelete={(current) =>
+                      setDeletingHabit({ type: "remote", habit: current })
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {!isAuthenticated && hasHabits && (
+          <section className="py-12">
+            <div className="flex items-end justify-between mb-12">
+              <div>
+                <p className="luxury-subheading">
+                  {sortedGuestHabits.length} {sortedGuestHabits.length === 1 ? "Ritual" : "Rituals"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingHabit(null);
+                  setShowForm(true);
+                }}
+                className="luxury-btn"
+              >
+                New Ritual
+              </button>
             </div>
-          )}
-        </section>
+            <div className="space-y-8">
+              {sortedGuestHabits.map((habit) => (
+                <GuestHabitCard
+                  key={habit.id}
+                  habit={habit}
+                  onEdit={(current) => {
+                    setEditingHabit({ type: "guest", habit: current });
+                    setShowForm(true);
+                  }}
+                  onDelete={(current) =>
+                    setDeletingHabit({ type: "guest", habit: current })
+                  }
+                  onToggleDate={handleToggleGuestCompletion}
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
+
+      <footer className="border-t border-[var(--color-divider)] mt-16">
+        <div className="mx-auto max-w-3xl px-6 py-8 text-center">
+          <p className="luxury-subheading">GitDone</p>
+        </div>
+      </footer>
 
       {showForm && (
         <HabitForm
@@ -338,9 +311,9 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
 
       {deletingHabit && (
         <ConfirmDialog
-          title={`Delete "${deletingHabit.habit.name}"?`}
-          description="This will permanently remove the habit and all its completion data."
-          confirmLabel="Delete"
+          title={`Remove "${deletingHabit.habit.name}"?`}
+          description="This ritual and all its history will be permanently removed."
+          confirmLabel="Remove"
           onConfirm={handleConfirmDelete}
           onCancel={() => setDeletingHabit(null)}
         />
@@ -354,8 +327,13 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[var(--app-bg)]">
-        <div className="size-7 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin" />
+      <div className="min-h-dvh flex items-center justify-center bg-[var(--color-cream)]">
+        <div className="text-center">
+          <h1 className="luxury-heading-italic text-3xl text-[var(--color-ink-muted)]">
+            GitDone
+          </h1>
+          <div className="mt-4 w-12 h-[1px] bg-[var(--color-gold)] mx-auto animate-pulse" />
+        </div>
       </div>
     );
   }

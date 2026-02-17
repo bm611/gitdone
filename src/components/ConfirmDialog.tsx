@@ -11,7 +11,7 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   title,
   description,
-  confirmLabel = "Delete",
+  confirmLabel = "Remove",
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -27,31 +27,35 @@ export function ConfirmDialog({
       role="alertdialog"
       aria-modal="true"
       aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] font-body"
       onClick={handleOverlayClick}
       onKeyDown={(e) => e.key === "Escape" && onCancel()}
     >
-      <div className="w-full max-w-sm mx-4 rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-        <h2 className="text-base font-semibold text-gray-900 text-balance">
-          {title}
-        </h2>
-        <p className="mt-2 text-sm text-gray-500 text-pretty">{description}</p>
+      <div className="bg-white w-full max-w-sm mx-4 shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
+        <div className="p-8 sm:p-10">
+          <h3 className="luxury-heading text-xl mb-3">{title}</h3>
+          <p className="text-sm text-[var(--color-ink-muted)] leading-relaxed mb-8">
+            {description}
+          </p>
 
-        <div className="mt-5 flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 cursor-pointer"
-          >
-            {confirmLabel}
-          </button>
+          <div className="w-full h-[1px] bg-[var(--color-divider)] mb-8" />
+
+          <div className="flex items-center justify-end gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="luxury-btn-ghost"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="luxury-btn-filled"
+            >
+              {confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>
