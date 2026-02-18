@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -19,33 +19,6 @@ interface GuestHabit {
 }
 
 const GUEST_HABITS_STORAGE_KEY = "gitdone.guest.habits.v1";
-
-const PASTEL_COLORS = [
-  { name: "Coral", value: "#f87171" },
-  { name: "Amber", value: "#f59e0b" },
-  { name: "Lime", value: "#84cc16" },
-  { name: "Emerald", value: "#34d399" },
-  { name: "Teal", value: "#2dd4bf" },
-  { name: "Sky", value: "#38bdf8" },
-  { name: "Indigo", value: "#818cf8" },
-  { name: "Violet", value: "#a78bfa" },
-  { name: "Fuchsia", value: "#e879f9" },
-  { name: "Rose", value: "#fb7185" },
-];
-
-const DEFAULT_COLOR = PASTEL_COLORS[3].value;
-
-const CATEGORIES = [
-  "Health",
-  "Fitness",
-  "Mindfulness",
-  "Productivity",
-  "Learning",
-  "Creative",
-  "Social",
-  "Finance",
-  "Self-care",
-];
 
 type HabitDraft = { name: string; color: string; category?: string };
 
@@ -110,23 +83,6 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
-  const [newHabitName, setNewHabitName] = useState("");
-  const [newHabitColor, setNewHabitColor] = useState(DEFAULT_COLOR);
-  const [newHabitCategory, setNewHabitCategory] = useState("");
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const colorPickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
-        setColorPickerOpen(false);
-      }
-    }
-    if (colorPickerOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [colorPickerOpen]);
 
   const handleCloseForm = () => {
     setShowForm(false);
@@ -180,22 +136,6 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
     });
   };
 
-  const handleInlineCreate = async () => {
-    const trimmed = newHabitName.trim();
-    if (!trimmed) return;
-    await handleSubmitHabit({ name: trimmed, color: newHabitColor, category: newHabitCategory || undefined });
-    setNewHabitName("");
-    setNewHabitColor(DEFAULT_COLOR);
-    setNewHabitCategory("");
-  };
-
-  const handleInlineKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      void handleInlineCreate();
-    }
-  };
-
   const handleToggleGuestCompletion = (habitId: string, date: string) => {
     handleSaveGuestHabits((current) =>
       current.map((habit) => {
@@ -242,15 +182,24 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         {/* Header bar */}
         <div className="habit-header-bar">
           <span className="text-lg font-pixel">GitDone</span>
-          {isAuthenticated ? (
-            <UserMenu />
-          ) : (
-            <SignInButton mode="redirect" forceRedirectUrl="/">
-              <button type="button" className="text-sm font-medium text-[var(--color-ink-muted)] bg-transparent border-none cursor-pointer hover:text-[var(--color-ink)] transition-colors duration-150">
-                sign in
-              </button>
-            </SignInButton>
-          )}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => { setEditingHabit(null); setShowForm(true); }}
+              className="habit-btn-create"
+            >
+              + create
+            </button>
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <SignInButton mode="redirect" forceRedirectUrl="/">
+                <button type="button" className="text-sm font-medium text-[var(--color-ink-muted)] bg-transparent border-none cursor-pointer hover:text-[var(--color-ink)] transition-colors duration-150">
+                  sign in
+                </button>
+              </SignInButton>
+            )}
+          </div>
         </div>
 
         {/* Sign in (unauthenticated) */}
@@ -259,69 +208,6 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             <SignIn />
           </div>
         )}
-
-        {/* Inline create form */}
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={newHabitName}
-            onChange={(e) => setNewHabitName(e.target.value)}
-            onKeyDown={handleInlineKeyDown}
-            placeholder="New habit name..."
-            className="habit-input flex-1 min-w-0"
-          />
-          <select
-            value={newHabitCategory}
-            onChange={(e) => setNewHabitCategory(e.target.value)}
-            className="habit-input w-auto shrink-0"
-            aria-label="Category"
-          >
-            <option value="">No category</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          <div ref={colorPickerRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setColorPickerOpen(!colorPickerOpen)}
-              className="w-9 h-9 rounded-xl border-2 border-[var(--color-divider)] shrink-0 cursor-pointer transition-transform hover:scale-105"
-              style={{ backgroundColor: newHabitColor }}
-              aria-label="Pick color"
-              title="Pick color"
-            />
-            {colorPickerOpen && (
-              <div className="absolute right-0 top-full mt-2 z-30 bg-white rounded-xl shadow-lg border border-[var(--color-divider)] p-2 grid grid-cols-5 gap-1.5 w-max">
-                {PASTEL_COLORS.map((c) => (
-                  <button
-                    key={c.value}
-                    type="button"
-                    onClick={() => {
-                      setNewHabitColor(c.value);
-                      setColorPickerOpen(false);
-                    }}
-                    aria-label={c.name}
-                    title={c.name}
-                    className="w-7 h-7 rounded-full cursor-pointer transition-transform hover:scale-110"
-                    style={{
-                      backgroundColor: c.value,
-                      outline: newHabitColor === c.value ? "2px solid var(--color-ink)" : "none",
-                      outlineOffset: "2px",
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={() => void handleInlineCreate()}
-            disabled={!newHabitName.trim()}
-            className="habit-btn-create disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            + create
-          </button>
-        </div>
 
         {/* Authenticated habit list */}
         {isAuthenticated && (
