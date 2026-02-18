@@ -1,4 +1,4 @@
-import { SignInButton, SignUpButton } from "@clerk/clerk-react";
+import { SignUpButton } from "@clerk/clerk-react";
 
 export function SignIn() {
   return (
@@ -10,20 +10,15 @@ export function SignIn() {
         Cultivate your daily rituals with intention and grace.
       </p>
 
-      <div className="w-12 h-[1px] bg-[var(--color-gold)] mx-auto mb-10" />
+      <SignUpButton mode="redirect" forceRedirectUrl="/">
+        <button type="button" className="luxury-btn-filled text-base px-8 py-3">
+          Get Started
+        </button>
+      </SignUpButton>
 
-      <div className="flex gap-4 justify-center">
-        <SignInButton mode="redirect" forceRedirectUrl="/">
-          <button type="button" className="luxury-btn-filled">
-            Sign In
-          </button>
-        </SignInButton>
-        <SignUpButton mode="redirect" forceRedirectUrl="/">
-          <button type="button" className="luxury-btn">
-            Register
-          </button>
-        </SignUpButton>
-      </div>
+      <p className="text-xs text-[var(--color-ink-faint)] mt-4">
+        Free to use · No credit card required
+      </p>
     </div>
   );
 }

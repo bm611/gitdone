@@ -183,19 +183,21 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         <div className="habit-header-bar">
           <span className="text-lg font-pixel">GitDone</span>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => { setEditingHabit(null); setShowForm(true); }}
-              className="habit-btn-create"
-            >
-              + create
-            </button>
             {isAuthenticated ? (
-              <UserMenu />
+              <>
+                <button
+                  type="button"
+                  onClick={() => { setEditingHabit(null); setShowForm(true); }}
+                  className="habit-btn-create"
+                >
+                  + create
+                </button>
+                <UserMenu />
+              </>
             ) : (
               <SignInButton mode="redirect" forceRedirectUrl="/">
-                <button type="button" className="text-sm font-medium text-[var(--color-ink-muted)] bg-transparent border-none cursor-pointer hover:text-[var(--color-ink)] transition-colors duration-150">
-                  sign in
+                <button type="button" className="luxury-btn-filled">
+                  Sign In
                 </button>
               </SignInButton>
             )}
