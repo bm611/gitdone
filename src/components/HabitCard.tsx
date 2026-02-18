@@ -1,34 +1,104 @@
-import { useQuery } from "convex/react";
+import { useMemo, useState } from "react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import type { Doc } from "../../convex/_generated/dataModel";
+import type { Id } from "../../convex/_generated/dataModel";
+import { todayString } from "../lib/dates";
 import { HabitGrid } from "./HabitGrid";
 
 interface HabitCardProps {
-  habit: Doc<"habits">;
-  onEdit: (habit: Doc<"habits">) => void;
-  onDelete: (habit: Doc<"habits">) => void;
+  name: string;
+  color: string;
+  onEdit: () => void;
+  onDelete: () => void;
+  /** Convex habit ID — when provided, completions are fetched from Convex */
+  habitId?: Id<"habits">;
+  /** Guest-mode completion dates (localStorage) */
+  completionDates?: string[];
+  /** Guest-mode toggle callback */
+  onToggleDate?: (date: string) => void;
 }
 
-export function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
-  const completions = useQuery(api.completions.listByHabit, {
-    habitId: habit._id,
-  });
+export function HabitCard({
+  name,
+  color,
+  onEdit,
+  onDelete,
+  habitId,
+  completionDates,
+  onToggleDate,
+}: HabitCardProps) {
+  const remoteCompletions = useQuery(
+    api.completions.listByHabit,
+    habitId ? { habitId } : "skip",
+  );
+  const toggle = useMutation(api.completions.toggle);
 
-  const completionCount = completions?.length ?? 0;
+  const completedDates = useMemo(() => {
+    if (completionDates) return completionDates;
+    return remoteCompletions?.map((c) => c.date) ?? [];
+  }, [completionDates, remoteCompletions]);
+
+  const completionCount = completedDates.length;
+
+  const today = useMemo(() => todayString(), []);
+  const isDoneToday = completedDates.includes(today);
+
+  const [glowKey, setGlowKey] = useState(0);
+
+  const handleToggleToday = () => {
+    if (!isDoneToday) setGlowKey((k) => k + 1);
+    if (habitId) {
+      void toggle({ habitId, date: today });
+    } else {
+      onToggleDate?.(today);
+    }
+  };
+
+  const handleToggleDate = (date: string) => {
+    if (habitId) {
+      void toggle({ habitId, date });
+    } else {
+      onToggleDate?.(date);
+    }
+  };
 
   return (
     <div className="habit-card">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <h3
-          className="text-xl font-semibold tracking-tight bg-clip-text text-transparent"
+          className="text-xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
           style={{
-            backgroundImage: `linear-gradient(135deg, ${habit.color}, color-mix(in srgb, ${habit.color} 60%, #000))`,
+            backgroundImage: `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 60%, #000))`,
           }}
         >
-          {habit.name}
+          {name}
         </h3>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            key={glowKey}
+            type="button"
+            onClick={handleToggleToday}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer border-none transition-all duration-150${isDoneToday ? " habit-today-done" : ""}`}
+            style={{
+              background: isDoneToday ? `color-mix(in srgb, ${color} 60%, #000)` : "var(--color-pill-bg)",
+              color: isDoneToday ? "#fff" : "var(--color-pill-text)",
+            }}
+            aria-label={isDoneToday ? "Unmark today" : "Mark today as done"}
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {isDoneToday ? (
+                <polyline points="20 6 9 17 4 12" />
+              ) : (
+                <>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </>
+              )}
+            </svg>
+            {isDoneToday ? "Done" : "Today"}
+          </button>
+
           <span className="habit-pill">
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -39,7 +109,7 @@ export function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
 
           <button
             type="button"
-            onClick={() => onEdit(habit)}
+            onClick={onEdit}
             aria-label="Edit"
             className="habit-icon-btn"
           >
@@ -51,7 +121,7 @@ export function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
 
           <button
             type="button"
-            onClick={() => onDelete(habit)}
+            onClick={onDelete}
             aria-label="Delete"
             className="habit-icon-btn"
           >
@@ -63,7 +133,12 @@ export function HabitCard({ habit, onEdit, onDelete }: HabitCardProps) {
         </div>
       </div>
 
-      <HabitGrid habitId={habit._id} color={habit.color} />
+      <HabitGrid
+        habitId={habitId}
+        color={color}
+        completionDates={completionDates}
+        onToggleDate={onToggleDate ?? handleToggleDate}
+      />
     </div>
   );
 }

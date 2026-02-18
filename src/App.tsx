@@ -3,30 +3,51 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
 import { HabitCard } from "./components/HabitCard";
-import { GuestHabitCard, type GuestHabit } from "./components/GuestHabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { UserMenu } from "./components/UserMenu";
+import { SignInButton } from "@clerk/clerk-react";
 import { SignIn } from "./components/SignIn";
+
+interface GuestHabit {
+  id: string;
+  name: string;
+  color: string;
+  category?: string;
+  createdAt: number;
+  completions: string[];
+}
 
 const GUEST_HABITS_STORAGE_KEY = "gitdone.guest.habits.v1";
 
 const PASTEL_COLORS = [
-  { name: "Rose", value: "#fbb4b4" },
-  { name: "Peach", value: "#fcd5b4" },
-  { name: "Banana", value: "#fef3b4" },
-  { name: "Mint", value: "#b4fcd5" },
-  { name: "Sage", value: "#b4f0e0" },
-  { name: "Sky", value: "#b4d8fc" },
-  { name: "Periwinkle", value: "#b4b8fc" },
-  { name: "Lavender", value: "#d5b4fc" },
-  { name: "Mauve", value: "#f0b4e0" },
-  { name: "Blush", value: "#fcb4d8" },
+  { name: "Coral", value: "#f87171" },
+  { name: "Amber", value: "#f59e0b" },
+  { name: "Lime", value: "#84cc16" },
+  { name: "Emerald", value: "#34d399" },
+  { name: "Teal", value: "#2dd4bf" },
+  { name: "Sky", value: "#38bdf8" },
+  { name: "Indigo", value: "#818cf8" },
+  { name: "Violet", value: "#a78bfa" },
+  { name: "Fuchsia", value: "#e879f9" },
+  { name: "Rose", value: "#fb7185" },
 ];
 
 const DEFAULT_COLOR = PASTEL_COLORS[3].value;
 
-type HabitDraft = { name: string; color: string };
+const CATEGORIES = [
+  "Health",
+  "Fitness",
+  "Mindfulness",
+  "Productivity",
+  "Learning",
+  "Creative",
+  "Social",
+  "Finance",
+  "Self-care",
+];
+
+type HabitDraft = { name: string; color: string; category?: string };
 
 type EditingHabitState =
   | { type: "remote"; habit: Doc<"habits"> }
@@ -91,6 +112,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
   const [newHabitName, setNewHabitName] = useState("");
   const [newHabitColor, setNewHabitColor] = useState(DEFAULT_COLOR);
+  const [newHabitCategory, setNewHabitCategory] = useState("");
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
@@ -120,15 +142,17 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   };
 
   const handleSubmitHabit = async (values: HabitDraft) => {
+    const category = values.category || undefined;
     if (isAuthenticated) {
       if (editingHabit?.type === "remote") {
         await updateHabit({
           id: editingHabit.habit._id,
           name: values.name,
           color: values.color,
+          category,
         });
       } else {
-        await createHabit(values);
+        await createHabit({ name: values.name, color: values.color, category });
       }
       return;
     }
@@ -137,7 +161,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
       if (editingHabit?.type === "guest") {
         return current.map((habit) =>
           habit.id === editingHabit.habit.id
-            ? { ...habit, name: values.name, color: values.color }
+            ? { ...habit, name: values.name, color: values.color, category }
             : habit,
         );
       }
@@ -147,6 +171,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           id: createGuestHabitId(),
           name: values.name,
           color: values.color,
+          category,
           createdAt: Date.now(),
           completions: [],
         },
@@ -158,9 +183,10 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const handleInlineCreate = async () => {
     const trimmed = newHabitName.trim();
     if (!trimmed) return;
-    await handleSubmitHabit({ name: trimmed, color: newHabitColor });
+    await handleSubmitHabit({ name: trimmed, color: newHabitColor, category: newHabitCategory || undefined });
     setNewHabitName("");
     setNewHabitColor(DEFAULT_COLOR);
+    setNewHabitCategory("");
   };
 
   const handleInlineKeyDown = (e: React.KeyboardEvent) => {
@@ -200,7 +226,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   };
 
   const formValues = editingHabit
-    ? { name: editingHabit.habit.name, color: editingHabit.habit.color }
+    ? { name: editingHabit.habit.name, color: editingHabit.habit.color, category: editingHabit.habit.category }
     : null;
 
   const sortedGuestHabits = useMemo(
@@ -219,7 +245,11 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           {isAuthenticated ? (
             <UserMenu />
           ) : (
-            <span className="text-sm font-medium text-[var(--color-ink-muted)]">sync</span>
+            <SignInButton mode="redirect" forceRedirectUrl="/">
+              <button type="button" className="text-sm font-medium text-[var(--color-ink-muted)] bg-transparent border-none cursor-pointer hover:text-[var(--color-ink)] transition-colors duration-150">
+                sign in
+              </button>
+            </SignInButton>
           )}
         </div>
 
@@ -238,8 +268,19 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             onChange={(e) => setNewHabitName(e.target.value)}
             onKeyDown={handleInlineKeyDown}
             placeholder="New habit name..."
-            className="habit-input flex-1"
+            className="habit-input flex-1 min-w-0"
           />
+          <select
+            value={newHabitCategory}
+            onChange={(e) => setNewHabitCategory(e.target.value)}
+            className="habit-input w-auto shrink-0"
+            aria-label="Category"
+          >
+            <option value="">No category</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
           <div ref={colorPickerRef} className="relative">
             <button
               type="button"
@@ -299,13 +340,15 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                 {habits?.map((habit) => (
                   <HabitCard
                     key={habit._id}
-                    habit={habit}
-                    onEdit={(current) => {
-                      setEditingHabit({ type: "remote", habit: current });
+                    habitId={habit._id}
+                    name={habit.name}
+                    color={habit.color}
+                    onEdit={() => {
+                      setEditingHabit({ type: "remote", habit });
                       setShowForm(true);
                     }}
-                    onDelete={(current) =>
-                      setDeletingHabit({ type: "remote", habit: current })
+                    onDelete={() =>
+                      setDeletingHabit({ type: "remote", habit })
                     }
                   />
                 ))}
@@ -318,17 +361,19 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         {!isAuthenticated && sortedGuestHabits.length > 0 && (
           <div className="space-y-4">
             {sortedGuestHabits.map((habit) => (
-              <GuestHabitCard
+              <HabitCard
                 key={habit.id}
-                habit={habit}
-                onEdit={(current) => {
-                  setEditingHabit({ type: "guest", habit: current });
+                name={habit.name}
+                color={habit.color}
+                completionDates={habit.completions}
+                onToggleDate={(date) => handleToggleGuestCompletion(habit.id, date)}
+                onEdit={() => {
+                  setEditingHabit({ type: "guest", habit });
                   setShowForm(true);
                 }}
-                onDelete={(current) =>
-                  setDeletingHabit({ type: "guest", habit: current })
+                onDelete={() =>
+                  setDeletingHabit({ type: "guest", habit })
                 }
-                onToggleDate={handleToggleGuestCompletion}
               />
             ))}
           </div>

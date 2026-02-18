@@ -19,7 +19,7 @@ export const list = query({
 });
 
 export const create = mutation({
-  args: { name: v.string(), color: v.string() },
+  args: { name: v.string(), color: v.string(), category: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
@@ -27,19 +27,20 @@ export const create = mutation({
       userId,
       name: args.name,
       color: args.color,
+      category: args.category,
       createdAt: Date.now(),
     });
   },
 });
 
 export const update = mutation({
-  args: { id: v.id("habits"), name: v.string(), color: v.string() },
+  args: { id: v.id("habits"), name: v.string(), color: v.string(), category: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const habit = await ctx.db.get(args.id);
     if (!habit || habit.userId !== userId) throw new Error("Not found");
-    await ctx.db.patch(args.id, { name: args.name, color: args.color });
+    await ctx.db.patch(args.id, { name: args.name, color: args.color, category: args.category });
   },
 });
 

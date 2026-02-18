@@ -2,21 +2,33 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "../lib/cn";
 
 const COLORS = [
-  { name: "Rose", value: "#fbb4b4" },
-  { name: "Peach", value: "#fcd5b4" },
-  { name: "Banana", value: "#fef3b4" },
-  { name: "Mint", value: "#b4fcd5" },
-  { name: "Sage", value: "#b4f0e0" },
-  { name: "Sky", value: "#b4d8fc" },
-  { name: "Periwinkle", value: "#b4b8fc" },
-  { name: "Lavender", value: "#d5b4fc" },
-  { name: "Mauve", value: "#f0b4e0" },
-  { name: "Blush", value: "#fcb4d8" },
+  { name: "Coral", value: "#f87171" },
+  { name: "Amber", value: "#f59e0b" },
+  { name: "Lime", value: "#84cc16" },
+  { name: "Emerald", value: "#34d399" },
+  { name: "Teal", value: "#2dd4bf" },
+  { name: "Sky", value: "#38bdf8" },
+  { name: "Indigo", value: "#818cf8" },
+  { name: "Violet", value: "#a78bfa" },
+  { name: "Fuchsia", value: "#e879f9" },
+  { name: "Rose", value: "#fb7185" },
+];
+
+const CATEGORIES = [
+  "Health",
+  "Fitness",
+  "Mindfulness",
+  "Productivity",
+  "Learning",
+  "Creative",
+  "Social",
+  "Finance",
+  "Self-care",
 ];
 
 interface HabitFormProps {
-  editingHabit?: { name: string; color: string } | null;
-  onSubmitHabit: (values: { name: string; color: string }) => Promise<void> | void;
+  editingHabit?: { name: string; color: string; category?: string } | null;
+  onSubmitHabit: (values: { name: string; color: string; category?: string }) => Promise<void> | void;
   guestMode?: boolean;
   onClose: () => void;
 }
@@ -29,6 +41,7 @@ export function HabitForm({
 }: HabitFormProps) {
   const [name, setName] = useState(editingHabit?.name ?? "");
   const [color, setColor] = useState(editingHabit?.color ?? COLORS[0].value);
+  const [category, setCategory] = useState(editingHabit?.category ?? "");
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +64,7 @@ export function HabitForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await onSubmitHabit({ name: name.trim(), color });
+    await onSubmitHabit({ name: name.trim(), color, category: category || undefined });
     onClose();
   };
 
@@ -97,6 +110,23 @@ export function HabitForm({
                 placeholder="Morning meditation..."
                 className="habit-input"
               />
+            </div>
+
+            <div>
+              <label htmlFor="habit-category" className="luxury-subheading block mb-2">
+                Category <span className="text-[var(--color-ink-faint)]">(optional)</span>
+              </label>
+              <select
+                id="habit-category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="habit-input"
+              >
+                <option value="">No category</option>
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </div>
 
             <div>
