@@ -1,11 +1,12 @@
 import { SignUpButton } from "@clerk/clerk-react";
+import { AsciiLogo } from "./AsciiLogo";
 
 export function SignIn() {
   return (
     <div className="w-full max-w-md mx-auto text-center">
-      <p className="luxury-heading-italic text-4xl sm:text-5xl mb-4">
-        Welcome
-      </p>
+      <div className="flex justify-center mb-6">
+        <AsciiLogo />
+      </div>
       <p className="text-sm text-[var(--color-ink-muted)] font-body mb-10 max-w-xs mx-auto leading-relaxed">
         Cultivate your daily rituals with intention and grace.
       </p>

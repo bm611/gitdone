@@ -181,19 +181,13 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-4">
         {/* Header bar */}
         <div className="habit-header-bar">
-          <span className="text-lg font-pixel">GitDone</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-pixel">GitDone</span>
+            <span className="text-xs text-[var(--color-ink-muted)]">track habits like git commits</span>
+          </div>
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => { setEditingHabit(null); setShowForm(true); }}
-                  className="habit-btn-create"
-                >
-                  + create
-                </button>
-                <UserMenu />
-              </>
+              <UserMenu />
             ) : (
               <SignInButton mode="redirect" forceRedirectUrl="/">
                 <button type="button" className="luxury-btn-filled">
@@ -203,6 +197,17 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             )}
           </div>
         </div>
+
+        {/* Create button */}
+        {isAuthenticated && (
+          <button
+            type="button"
+            onClick={() => { setEditingHabit(null); setShowForm(true); }}
+            className="habit-btn-create w-full"
+          >
+            + create
+          </button>
+        )}
 
         {/* Sign in (unauthenticated) */}
         {!isAuthenticated && (
@@ -222,6 +227,10 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                     <div className="h-[80px] bg-[var(--color-divider)] rounded" />
                   </div>
                 ))}
+              </div>
+            ) : habits?.length === 0 ? (
+              <div className="flex flex-col items-center gap-4 py-12 text-center">
+                <p className="text-sm text-[var(--color-ink-muted)]">No habits yet — create your first commit.</p>
               </div>
             ) : (
               <div className="space-y-4">

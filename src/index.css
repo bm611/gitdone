@@ -65,6 +65,7 @@ body {
     background: var(--color-card);
     border-radius: 16px;
     padding: 1.25rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   }
 
   .habit-pill {
