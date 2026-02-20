@@ -1,73 +1,80 @@
-# React + TypeScript + Vite
+# GitDone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Track habits like git commits — a GitHub-style contribution grid for your daily habits.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **GitHub-style habit grid** — visualize streaks and consistency at a glance
+- **Authentication** — sign in with Clerk to persist your data
+- **Demo mode** — try it out instantly without signing in
+- **Custom colors & categories** — personalize each habit
+- **Real-time sync** — powered by Convex for instant updates
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React 19, TypeScript, Tailwind CSS v4
+- **Backend:** [Convex](https://convex.dev) (database + real-time queries/mutations)
+- **Auth:** [Clerk](https://clerk.com)
+- **Build:** Vite 7
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+
+- A [Convex](https://convex.dev) account
+- A [Clerk](https://clerk.com) application
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/bm611/gitdone.git
+cd gitdone
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Environment Setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Configure your Convex and Clerk credentials:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npx convex dev   # Follow prompts to link your Convex project
 ```
+
+Set up Clerk by adding your publishable key to your environment (see [Convex + Clerk docs](https://docs.convex.dev/auth/clerk)).
+
+### Development
+
+```bash
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Project Structure
+
+```
+src/
+├── components/       # React UI components
+│   ├── HabitCard     # Individual habit with contribution grid
+│   ├── HabitGrid     # GitHub-style grid visualization
+│   ├── HabitForm     # Create/edit habit modal
+│   ├── ConfirmDialog # Delete confirmation
+│   ├── SignIn        # Landing/sign-in view
+│   └── UserMenu     # Authenticated user dropdown
+├── App.tsx           # Main app with auth routing
+└── main.tsx          # Entry point with Convex/Clerk providers
+convex/
+├── schema.ts         # Database schema (habits + completions)
+├── habits.ts         # Habit CRUD mutations/queries
+└── completions.ts    # Daily completion toggle logic
+```
+
+## License
+
+MIT
