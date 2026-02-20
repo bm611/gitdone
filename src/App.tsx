@@ -6,11 +6,12 @@ import { HabitCard } from "./components/HabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { StatsPage } from "./components/StatsPage";
-import { UserMenu, useDisplayName } from "./components/UserMenu";
+import { UserMenu } from "./components/UserMenu";
 import { SignInButton } from "@clerk/clerk-react";
 import { SignIn } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
+import { useDisplayName } from "./lib/useDisplayName";
 
 interface GuestHabit {
   id: string;

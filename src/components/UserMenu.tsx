@@ -1,12 +1,7 @@
-import { useClerk, useUser } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 import { useState, useRef, useEffect } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { UserIcon } from "@hugeicons/core-free-icons";
-
-export function useDisplayName() {
-  const { user } = useUser();
-  return user?.username || user?.firstName || "Guest";
-}
 
 export function UserMenu() {
   const { signOut, openUserProfile } = useClerk();
