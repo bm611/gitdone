@@ -1,4 +1,4 @@
-import { useClerk, useUser } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 import { useState, useRef, useEffect } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { UserIcon } from "@hugeicons/core-free-icons";
@@ -10,7 +10,6 @@ export function useDisplayName() {
 
 export function UserMenu() {
   const { signOut, openUserProfile } = useClerk();
-  const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
