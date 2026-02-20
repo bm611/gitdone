@@ -5,6 +5,7 @@ import type { Doc } from "../convex/_generated/dataModel";
 import { HabitCard } from "./components/HabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
+import { StatsPage } from "./components/StatsPage";
 import { UserMenu } from "./components/UserMenu";
 import { SignInButton } from "@clerk/clerk-react";
 import { SignIn } from "./components/SignIn";
@@ -51,6 +52,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
+  const [view, setView] = useState<"dashboard" | "stats">("dashboard");
 
   const handleCloseForm = () => {
     setShowForm(false);
@@ -154,6 +156,18 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             <span className="text-xs text-[var(--color-ink-muted)]">track habits like git commits</span>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setView(view === "dashboard" ? "stats" : "dashboard")}
+              className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors cursor-pointer bg-transparent border-none p-0"
+              aria-label="Stats"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </button>
             <a
               href="https://github.com/bm611/gitdone"
               target="_blank"
@@ -175,7 +189,13 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           </div>
         </div>
 
-        {!isAuthenticated && sortedGuestHabits.length === 0 ? (
+        {view === "stats" ? (
+          <StatsPage
+            isAuthenticated={isAuthenticated}
+            guestHabits={guestHabits}
+            onBack={() => setView("dashboard")}
+          />
+        ) : !isAuthenticated && sortedGuestHabits.length === 0 ? (
           <div className="py-12 flex justify-center animate-in fade-in duration-500">
             <SignIn onStartDemo={() => { setEditingHabit(null); setShowForm(true); }} />
           </div>

@@ -21,6 +21,28 @@ export const listByHabit = query({
   },
 });
 
+export const listAll = query({
+  handler: async (ctx) => {
+    const userId = await getUserId(ctx);
+    if (!userId) return [];
+    const habits = await ctx.db
+      .query("habits")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const all: { habitId: string; date: string }[] = [];
+    for (const habit of habits) {
+      const completions = await ctx.db
+        .query("completions")
+        .withIndex("by_habit", (q) => q.eq("habitId", habit._id))
+        .collect();
+      for (const c of completions) {
+        all.push({ habitId: habit._id, date: c.date });
+      }
+    }
+    return all;
+  },
+});
+
 export const toggle = mutation({
   args: { habitId: v.id("habits"), date: v.string() },
   handler: async (ctx, args) => {

@@ -38,8 +38,6 @@ export function HabitCard({
     return remoteCompletions?.map((c) => c.date) ?? [];
   }, [completionDates, remoteCompletions]);
 
-  const completionCount = completedDates.length;
-
   const today = useMemo(() => todayString(), []);
   const isDoneToday = completedDates.includes(today);
 
@@ -98,14 +96,6 @@ export function HabitCard({
             </svg>
             {isDoneToday ? "Done" : "Today"}
           </button>
-
-          <span className="habit-pill">
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            {completionCount} {completionCount === 1 ? "day" : "days"}
-          </span>
 
           <button
             type="button"
