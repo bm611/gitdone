@@ -18,8 +18,6 @@ interface GuestHabit {
   completions: string[];
 }
 
-const GUEST_HABITS_STORAGE_KEY = "gitdone.guest.habits.v1";
-
 type HabitDraft = { name: string; color: string; category?: string };
 
 type EditingHabitState =
@@ -33,37 +31,7 @@ type DeletingHabitState =
   | null;
 
 function readGuestHabits() {
-  if (typeof window === "undefined") return [] as GuestHabit[];
-  try {
-    const raw = window.localStorage.getItem(GUEST_HABITS_STORAGE_KEY);
-    if (!raw) return [] as GuestHabit[];
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [] as GuestHabit[];
-
-    return parsed
-      .filter((habit): habit is GuestHabit => {
-        return (
-          typeof habit === "object" &&
-          habit !== null &&
-          typeof (habit as GuestHabit).id === "string" &&
-          typeof (habit as GuestHabit).name === "string" &&
-          typeof (habit as GuestHabit).color === "string" &&
-          typeof (habit as GuestHabit).createdAt === "number" &&
-          Array.isArray((habit as GuestHabit).completions)
-        );
-      })
-      .map((habit) => ({
-        ...habit,
-        completions: habit.completions.filter((value) => typeof value === "string"),
-      }));
-  } catch {
-    return [] as GuestHabit[];
-  }
-}
-
-function writeGuestHabits(habits: GuestHabit[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(GUEST_HABITS_STORAGE_KEY, JSON.stringify(habits));
+  return [] as GuestHabit[];
 }
 
 function createGuestHabitId() {
@@ -92,7 +60,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const handleSaveGuestHabits = (updater: (current: GuestHabit[]) => GuestHabit[]) => {
     setGuestHabits((current) => {
       const next = updater(current);
-      writeGuestHabits(next);
+      // Demo mode: no persistence
       return next;
     });
   };
@@ -185,7 +153,16 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             <span className="text-lg font-pixel">GitDone</span>
             <span className="text-xs text-[var(--color-ink-muted)]">track habits like git commits</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/bm611/gitdone"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors"
+              aria-label="GitHub"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            </a>
             {isAuthenticated ? (
               <UserMenu />
             ) : (
@@ -198,82 +175,85 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           </div>
         </div>
 
-        {/* Create button */}
-        {isAuthenticated && (
-          <button
-            type="button"
-            onClick={() => { setEditingHabit(null); setShowForm(true); }}
-            className="habit-btn-create w-full"
-          >
-            + create
-          </button>
-        )}
-
-        {/* Sign in (unauthenticated) */}
-        {!isAuthenticated && (
-          <div className="py-8 flex justify-center">
-            <SignIn />
+        {!isAuthenticated && sortedGuestHabits.length === 0 ? (
+          <div className="py-12 flex justify-center animate-in fade-in duration-500">
+            <SignIn onStartDemo={() => { setEditingHabit(null); setShowForm(true); }} />
           </div>
-        )}
-
-        {/* Authenticated habit list */}
-        {isAuthenticated && (
+        ) : (
           <>
-            {showAuthLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="habit-card animate-pulse">
-                    <div className="h-5 w-32 bg-[var(--color-divider)] rounded mb-4" />
-                    <div className="h-[80px] bg-[var(--color-divider)] rounded" />
+            <button
+              type="button"
+              onClick={() => { setEditingHabit(null); setShowForm(true); }}
+              className="habit-btn-create w-full mb-6"
+            >
+              + Create New Habit
+            </button>
+
+            {!isAuthenticated && (
+              <div className="text-center mb-6 py-3 px-4 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink-muted)] flex items-center justify-center gap-2 animate-in fade-in">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>Demo Mode — Sign in to save your progress.</span>
+              </div>
+            )}
+
+            {isAuthenticated && (
+              <>
+                {showAuthLoading ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <div key={i} className="habit-card animate-pulse">
+                        <div className="h-5 w-32 bg-[var(--color-divider)] rounded mb-4" />
+                        <div className="h-[80px] bg-[var(--color-divider)] rounded" />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : habits?.length === 0 ? (
-              <div className="flex flex-col items-center gap-4 py-12 text-center">
-                <p className="text-sm text-[var(--color-ink-muted)]">No habits yet — create your first commit.</p>
-              </div>
-            ) : (
+                ) : habits?.length === 0 ? (
+                  <div className="flex flex-col items-center gap-4 py-12 text-center">
+                    <p className="text-sm text-[var(--color-ink-muted)]">No habits yet — create your first commit.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {habits?.map((habit) => (
+                      <HabitCard
+                        key={habit._id}
+                        habitId={habit._id}
+                        name={habit.name}
+                        color={habit.color}
+                        onEdit={() => {
+                          setEditingHabit({ type: "remote", habit });
+                          setShowForm(true);
+                        }}
+                        onDelete={() =>
+                          setDeletingHabit({ type: "remote", habit })
+                        }
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {!isAuthenticated && sortedGuestHabits.length > 0 && (
               <div className="space-y-4">
-                {habits?.map((habit) => (
+                {sortedGuestHabits.map((habit) => (
                   <HabitCard
-                    key={habit._id}
-                    habitId={habit._id}
+                    key={habit.id}
                     name={habit.name}
                     color={habit.color}
+                    completionDates={habit.completions}
+                    onToggleDate={(date) => handleToggleGuestCompletion(habit.id, date)}
                     onEdit={() => {
-                      setEditingHabit({ type: "remote", habit });
+                      setEditingHabit({ type: "guest", habit });
                       setShowForm(true);
                     }}
                     onDelete={() =>
-                      setDeletingHabit({ type: "remote", habit })
+                      setDeletingHabit({ type: "guest", habit })
                     }
                   />
                 ))}
               </div>
             )}
           </>
-        )}
-
-        {/* Guest habit list */}
-        {!isAuthenticated && sortedGuestHabits.length > 0 && (
-          <div className="space-y-4">
-            {sortedGuestHabits.map((habit) => (
-              <HabitCard
-                key={habit.id}
-                name={habit.name}
-                color={habit.color}
-                completionDates={habit.completions}
-                onToggleDate={(date) => handleToggleGuestCompletion(habit.id, date)}
-                onEdit={() => {
-                  setEditingHabit({ type: "guest", habit });
-                  setShowForm(true);
-                }}
-                onDelete={() =>
-                  setDeletingHabit({ type: "guest", habit })
-                }
-              />
-            ))}
-          </div>
         )}
       </div>
 

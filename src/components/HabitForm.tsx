@@ -152,7 +152,7 @@ export function HabitForm({
 
             {guestMode && (
               <p className="text-xs text-[var(--color-ink-muted)] bg-[var(--color-pill-bg)] rounded-lg px-3 py-2">
-                Guest mode — data is stored locally in your browser.
+                Demo mode — habits will not be saved.
               </p>
             )}
 
