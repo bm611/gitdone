@@ -32,7 +32,7 @@ export function GridCell({ isCompleted, date, onClick }: GridCellProps) {
       />
 
       <div className="hidden group-hover/cell:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-20 pointer-events-none">
-        <div className="bg-[var(--color-ink)] text-white text-[9px] font-body tracking-wide px-2 py-1 rounded-md whitespace-nowrap shadow-lg">
+        <div className="bg-[#1a1a1a] text-[var(--color-ink)] text-[9px] font-body tracking-wide px-2 py-1 rounded-md whitespace-nowrap shadow-lg border border-[var(--color-divider)]">
           {display}
         </div>
       </div>
