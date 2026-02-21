@@ -10,7 +10,6 @@ function formatDisplayDate(date: string): string {
 
 interface GridCellProps {
   isCompleted: boolean;
-  color?: string;
   date: string;
   onClick: () => void;
 }

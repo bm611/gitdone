@@ -2,15 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { todayString, formatDate } from "../lib/dates";
-
-interface GuestHabit {
-  id: string;
-  name: string;
-  color: string;
-  category?: string;
-  createdAt: number;
-  completions: string[];
-}
+import type { GuestHabit } from "../lib/types";
 
 interface StatsPageProps {
   isAuthenticated: boolean;
@@ -309,7 +301,7 @@ function OverallCard({
 }
 
 export function StatsPage({ isAuthenticated, guestHabits, onBack }: StatsPageProps) {
-  const habits = useQuery(api.habits.list);
+  const habits = useQuery(api.habits.list, isAuthenticated ? {} : "skip");
   const allCompletionsRaw = useQuery(
     api.completions.listAll,
     isAuthenticated ? {} : "skip",

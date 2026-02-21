@@ -1,11 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-
-async function getUserId(ctx: { auth: { getUserIdentity: () => Promise<{ subject: string } | null> } }) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) return null;
-  return identity.subject;
-}
+import { getUserId } from "./lib";
 
 export const list = query({
   handler: async (ctx) => {

@@ -51,30 +51,6 @@ export function formatDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function getMonthLabels(cells: DayCell[]): { label: string; weekIndex: number }[] {
-  if (cells.length === 0) return [];
-
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  const labels: { label: string; weekIndex: number }[] = [];
-  let lastMonth = -1;
-
-  for (const cell of cells) {
-    if (cell.month !== lastMonth && cell.dayOfWeek === 0) {
-      labels.push({ label: months[cell.month], weekIndex: cell.weekIndex });
-      lastMonth = cell.month;
-    }
-  }
-
-  if (labels.length === 0 || labels[0].weekIndex !== 0) {
-    labels.unshift({ label: months[cells[0].month], weekIndex: 0 });
-  }
-
-  return labels;
-}
-
 export function todayString(): string {
   return formatDate(new Date());
 }

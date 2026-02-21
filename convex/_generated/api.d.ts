@@ -10,6 +10,7 @@
 
 import type * as completions from "../completions.js";
 import type * as habits from "../habits.js";
+import type * as lib from "../lib.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   completions: typeof completions;
   habits: typeof habits;
+  lib: typeof lib;
 }>;
 
 /**

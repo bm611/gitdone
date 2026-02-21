@@ -1,15 +1,9 @@
 import { useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import type { Id } from "../../convex/_generated/dataModel";
 import type { DayCell } from "../lib/dates";
 import { generateCalendarMonthsGrid } from "../lib/dates";
 import { GridCell } from "./GridCell";
-import { HabitGridSkeleton } from "./HabitGridSkeleton";
 
 interface HabitGridProps {
-  color: string;
-  habitId?: Id<"habits">;
   completionDates?: string[];
   onToggleDate?: (date: string) => void;
   interactive?: boolean;
@@ -66,39 +60,22 @@ function groupByMonth(cells: DayCell[]): MonthGroup[] {
 }
 
 export function HabitGrid({
-  habitId,
-  color,
   completionDates,
   onToggleDate,
   interactive = true,
 }: HabitGridProps) {
-  const completions = useQuery(
-    api.completions.listByHabit,
-    habitId ? { habitId } : "skip",
-  );
-  const toggle = useMutation(api.completions.toggle);
-
   const cells = useMemo(() => generateCalendarMonthsGrid(GRID_MONTH_WINDOW), []);
   const monthGroups = useMemo(() => groupByMonth(cells), [cells]);
 
-  const completedDates = useMemo(() => {
-    if (completionDates) return new Set(completionDates);
-    if (!completions) return new Set<string>();
-    return new Set(completions.map((c) => c.date));
-  }, [completionDates, completions]);
+  const completedDates = useMemo(
+    () => new Set(completionDates ?? []),
+    [completionDates],
+  );
 
   const handleToggle = (date: string) => {
     if (!interactive) return;
-    if (habitId) {
-      void toggle({ habitId, date });
-      return;
-    }
     onToggleDate?.(date);
   };
-
-  if (habitId && !completions) {
-    return <HabitGridSkeleton />;
-  }
 
   return (
     <div className="grid grid-cols-6 gap-3">
@@ -122,7 +99,6 @@ export function HabitGrid({
                       key={cell.date}
                       date={cell.date}
                       isCompleted={completedDates.has(cell.date)}
-                      color={color}
                       onClick={() => handleToggle(cell.date)}
                     />
                   );

@@ -1,11 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-
-async function getUserId(ctx: { auth: { getUserIdentity: () => Promise<{ subject: string } | null> } }) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) return null;
-  return identity.subject;
-}
+import { getUserId } from "./lib";
 
 export const listByHabit = query({
   args: { habitId: v.id("habits") },
@@ -61,12 +56,11 @@ export const toggle = mutation({
     if (existing) {
       await ctx.db.delete(existing._id);
       return false;
-    } else {
-      await ctx.db.insert("completions", {
-        habitId: args.habitId,
-        date: args.date,
-      });
-      return true;
     }
+    await ctx.db.insert("completions", {
+      habitId: args.habitId,
+      date: args.date,
+    });
+    return true;
   },
 });

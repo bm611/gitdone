@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
+import type { GuestHabit } from "./lib/types";
 import { HabitCard } from "./components/HabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
@@ -12,15 +13,6 @@ import { SignIn } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
 import { useDisplayName } from "./lib/useDisplayName";
-
-interface GuestHabit {
-  id: string;
-  name: string;
-  color: string;
-  category?: string;
-  createdAt: number;
-  completions: string[];
-}
 
 type HabitDraft = { name: string; color: string; category?: string };
 
@@ -34,24 +26,13 @@ type DeletingHabitState =
   | { type: "guest"; habit: GuestHabit }
   | null;
 
-function readGuestHabits() {
-  return [] as GuestHabit[];
-}
-
-function createGuestHabitId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-  return `guest-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
 function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const habits = useQuery(api.habits.list);
+  const habits = useQuery(api.habits.list, isAuthenticated ? {} : "skip");
   const createHabit = useMutation(api.habits.create);
   const updateHabit = useMutation(api.habits.update);
   const removeHabit = useMutation(api.habits.remove);
 
-  const [guestHabits, setGuestHabits] = useState<GuestHabit[]>(() => readGuestHabits());
+  const [guestHabits, setGuestHabits] = useState<GuestHabit[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
@@ -61,14 +42,6 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingHabit(null);
-  };
-
-  const handleSaveGuestHabits = (updater: (current: GuestHabit[]) => GuestHabit[]) => {
-    setGuestHabits((current) => {
-      const next = updater(current);
-      // Demo mode: no persistence
-      return next;
-    });
   };
 
   const handleSubmitHabit = async (values: HabitDraft) => {
@@ -87,7 +60,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
       return;
     }
 
-    handleSaveGuestHabits((current) => {
+    setGuestHabits((current) => {
       if (editingHabit?.type === "guest") {
         return current.map((habit) =>
           habit.id === editingHabit.habit.id
@@ -98,7 +71,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
 
       return [
         {
-          id: createGuestHabitId(),
+          id: crypto.randomUUID(),
           name: values.name,
           color: values.color,
           category,
@@ -111,13 +84,13 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   };
 
   const handleToggleGuestCompletion = (habitId: string, date: string) => {
-    handleSaveGuestHabits((current) =>
+    setGuestHabits((current) =>
       current.map((habit) => {
         if (habit.id !== habitId) return habit;
-        const isCompleted = habit.completions.includes(date);
+        const has = habit.completions.includes(date);
         return {
           ...habit,
-          completions: isCompleted
+          completions: has
             ? habit.completions.filter((entry) => entry !== date)
             : [...habit.completions, date],
         };
@@ -133,7 +106,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
       return;
     }
 
-    handleSaveGuestHabits((current) =>
+    setGuestHabits((current) =>
       current.filter((habit) => habit.id !== deletingHabit.habit.id),
     );
     setDeletingHabit(null);

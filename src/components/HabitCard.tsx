@@ -4,17 +4,15 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { todayString } from "../lib/dates";
 import { HabitGrid } from "./HabitGrid";
+import { HabitGridSkeleton } from "./HabitGridSkeleton";
 
 interface HabitCardProps {
   name: string;
   color: string;
   onEdit: () => void;
   onDelete: () => void;
-  /** Convex habit ID — when provided, completions are fetched from Convex */
   habitId?: Id<"habits">;
-  /** Guest-mode completion dates (localStorage) */
   completionDates?: string[];
-  /** Guest-mode toggle callback */
   onToggleDate?: (date: string) => void;
 }
 
@@ -33,32 +31,33 @@ export function HabitCard({
   );
   const toggle = useMutation(api.completions.toggle);
 
-  const completedDates = useMemo(() => {
-    if (completionDates) return completionDates;
-    return remoteCompletions?.map((c) => c.date) ?? [];
+  const completedSet = useMemo(() => {
+    if (completionDates) return new Set(completionDates);
+    return new Set(remoteCompletions?.map((c) => c.date) ?? []);
   }, [completionDates, remoteCompletions]);
 
-  const today = useMemo(() => todayString(), []);
-  const isDoneToday = completedDates.includes(today);
+  const today = todayString();
+  const isDoneToday = completedSet.has(today);
 
   const [glowKey, setGlowKey] = useState(0);
 
-  const handleToggleToday = () => {
-    if (!isDoneToday) setGlowKey((k) => k + 1);
-    if (habitId) {
-      void toggle({ habitId, date: today });
-    } else {
-      onToggleDate?.(today);
-    }
-  };
-
-  const handleToggleDate = (date: string) => {
+  const handleToggle = (date: string) => {
     if (habitId) {
       void toggle({ habitId, date });
     } else {
       onToggleDate?.(date);
     }
   };
+
+  const handleToggleToday = () => {
+    if (!isDoneToday) setGlowKey((k) => k + 1);
+    handleToggle(today);
+  };
+
+  const resolvedDates = useMemo(
+    () => (completionDates ?? remoteCompletions?.map((c) => c.date) ?? []),
+    [completionDates, remoteCompletions],
+  );
 
   return (
     <div className="habit-card">
@@ -123,12 +122,14 @@ export function HabitCard({
         </div>
       </div>
 
-      <HabitGrid
-        habitId={habitId}
-        color={color}
-        completionDates={completionDates}
-        onToggleDate={onToggleDate ?? handleToggleDate}
-      />
+      {habitId && !remoteCompletions ? (
+        <HabitGridSkeleton />
+      ) : (
+        <HabitGrid
+          completionDates={resolvedDates}
+          onToggleDate={handleToggle}
+        />
+      )}
     </div>
   );
 }
