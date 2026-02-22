@@ -1,0 +1,28 @@
+{
+  "name": "GitDone — Habit Tracker",
+  "short_name": "GitDone",
+  "description": "Track your habits and build consistency with GitDone",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity"],
+  "screenshots": [
+    {
+      "src": "/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "form_factor": "narrow"
+    }
+  ]
+}
