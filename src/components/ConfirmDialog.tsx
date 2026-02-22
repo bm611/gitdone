@@ -31,9 +31,9 @@ export function ConfirmDialog({
       onClick={handleOverlayClick}
       onKeyDown={(e) => e.key === "Escape" && onCancel()}
     >
-      <div className="bg-white w-full max-w-sm mx-4 rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
+      <div className="bg-[var(--color-card)] border border-[var(--color-divider)] w-full max-w-sm mx-4 rounded-2xl shadow-[var(--shadow-raised)]">
         <div className="p-5 sm:p-10">
-          <h3 className="luxury-heading text-xl mb-3">{title}</h3>
+          <h3 className="luxury-heading text-[var(--color-ink)] text-xl mb-3">{title}</h3>
           <p className="text-sm text-[var(--color-ink-muted)] leading-relaxed mb-8">
             {description}
           </p>
@@ -51,7 +51,8 @@ export function ConfirmDialog({
             <button
               type="button"
               onClick={onConfirm}
-              className="luxury-btn-filled"
+              className="luxury-btn-filled text-red-600 font-bold"
+              style={{ color: "rgb(220, 38, 38)" }}
             >
               {confirmLabel}
             </button>

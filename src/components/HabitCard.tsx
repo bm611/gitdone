@@ -76,10 +76,14 @@ export function HabitCard({
             key={glowKey}
             type="button"
             onClick={handleToggleToday}
-            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer border-none transition-all duration-150${isDoneToday ? " habit-today-done" : ""}`}
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold cursor-pointer transition-all duration-150"
             style={{
-              background: isDoneToday ? `color-mix(in srgb, ${color} 60%, #000)` : "var(--color-pill-bg)",
-              color: isDoneToday ? "#fff" : "var(--color-pill-text)",
+              backgroundColor: isDoneToday ? color : "var(--color-pill-bg)",
+              color: isDoneToday ? "#ffffff" : "var(--color-pill-text)",
+              boxShadow: isDoneToday ? "var(--shadow-pressed)" : "var(--shadow-raised)",
+              transform: isDoneToday ? "translateY(2px)" : "translateY(0)",
+              border: isDoneToday ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.3)",
+              textShadow: isDoneToday ? "1px 1px 0px rgba(0,0,0,0.2)" : "none",
             }}
             aria-label={isDoneToday ? "Unmark today" : "Mark today as done"}
           >
@@ -93,16 +97,16 @@ export function HabitCard({
                 </>
               )}
             </svg>
-            {isDoneToday ? "Done" : "Today"}
+            <span>{isDoneToday ? "Done" : "Today"}</span>
           </button>
 
           <button
             type="button"
             onClick={onEdit}
             aria-label="Edit"
-            className="habit-icon-btn"
+            className="habit-icon-btn animated-icon-bounce"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
@@ -112,9 +116,9 @@ export function HabitCard({
             type="button"
             onClick={onDelete}
             aria-label="Delete"
-            className="habit-icon-btn"
+            className="habit-icon-btn animated-icon-bounce"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="3 6 5 6 21 6" />
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
             </svg>

@@ -78,7 +78,7 @@ export function HabitForm({
       onClick={handleOverlayClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-[var(--color-card)] w-full max-w-md mx-4 rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.12)]">
+      <div className="bg-[var(--color-card)] border border-[var(--color-divider)] w-full max-w-md mx-4 rounded-2xl shadow-[var(--shadow-raised)] transition-all duration-300 transform scale-100">
         <div className="p-4 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="luxury-heading text-xl">
@@ -139,10 +139,10 @@ export function HabitForm({
                     onClick={() => setColor(c.value)}
                     aria-label={c.name}
                     className={cn(
-                      "w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200",
+                      "w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200 cursor-pointer",
                       color === c.value
-                        ? "ring-2 ring-offset-3 ring-[var(--color-ink-muted)]"
-                        : "hover:scale-110"
+                        ? "shadow-[var(--shadow-pressed)] scale-90 border-2 border-[var(--color-bg)]"
+                        : "shadow-[var(--shadow-raised)] hover:scale-110"
                     )}
                     style={{ backgroundColor: c.value }}
                   />

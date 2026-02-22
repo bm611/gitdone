@@ -135,7 +135,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             <button
               type="button"
               onClick={() => setView(view === "dashboard" ? "stats" : "dashboard")}
-              className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-cell-done)] transition-colors cursor-pointer bg-transparent border-none p-0"
+              className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-cell-done)] transition-colors cursor-pointer bg-transparent border-none p-0 animated-icon-bounce"
               aria-label="Stats"
             >
               <span className="md:hidden"><HugeiconsIcon icon={AnalyticsIcon} size={18} color="currentColor" strokeWidth={1.5} /></span>
@@ -145,7 +145,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
               href="https://github.com/bm611/gitdone"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-cell-done)] transition-colors"
+              className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors animated-icon-spin"
               aria-label="GitHub"
             >
               <span className="md:hidden"><HugeiconsIcon icon={GithubIcon} size={18} color="currentColor" strokeWidth={1.5} /></span>
@@ -182,9 +182,9 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             </button>
 
             {!isAuthenticated && (
-              <div className="text-center mb-6 py-3 px-4 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink-muted)] flex items-center justify-center gap-2 animate-in fade-in">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span>Demo Mode — Sign in to save your progress.</span>
+              <div className="text-center mb-6 py-3 px-4 bg-[var(--color-card)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink-muted)] flex items-center justify-center gap-2 shadow-[var(--shadow-pressed)] animate-in fade-in">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                <span className="font-semibold text-[var(--color-ink)]">Demo Mode</span> — Sign in to save your progress.
               </div>
             )}
 
@@ -278,10 +278,14 @@ export default function App() {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-[var(--color-bg)]">
         <div className="text-center">
-          <h1 className="text-2xl font-pixel text-[var(--color-ink-muted)]">
+          <h1 className="text-3xl font-pixel text-[var(--color-ink)] drop-shadow-[2px_2px_4px_rgba(163,177,198,0.8)]">
             GitDone
           </h1>
-          <div className="mt-4 w-8 h-1 bg-[var(--color-divider)] mx-auto rounded animate-pulse" />
+          <div className="mt-6 flex justify-center gap-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-3 h-3 rounded-full bg-[var(--color-ink-faint)] shadow-[var(--shadow-pressed)] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+            ))}
+          </div>
         </div>
       </div>
     );

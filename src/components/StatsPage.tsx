@@ -120,6 +120,10 @@ function BarChart({
             style={{
               height: maxVal > 0 ? `${Math.max(3, (d.value / maxVal) * 100)}%` : "3%",
               backgroundColor: d.value > 0 ? color : "var(--color-cell-empty)",
+              boxShadow: d.value > 0 ? "var(--shadow-led-on)" : "var(--shadow-led-off)",
+              borderTop: d.value > 0 ? "1px solid rgba(255,255,255,0.6)" : "none",
+              borderLeft: d.value > 0 ? "1px solid rgba(255,255,255,0.3)" : "none",
+              borderRight: d.value > 0 ? "1px solid rgba(0,0,0,0.1)" : "none",
             }}
           />
         </div>
@@ -132,7 +136,7 @@ function StatNumber({ label, value, color }: { label: string; value: string | nu
   return (
     <div className="flex flex-col items-center gap-1">
       <span
-        className="text-2xl font-bold tabular-nums"
+        className="text-2xl font-bold tabular-nums drop-shadow-[1px_1px_0px_rgba(255,255,255,0.9)]"
         style={color ? { color } : undefined}
       >
         {value}
@@ -164,7 +168,7 @@ function HabitStatsCard({ stats }: { stats: HabitStats }) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[var(--color-bg-secondary)] rounded-xl p-3">
+        <div className="bg-[var(--color-bg)] border border-[rgba(255,255,255,0.3)] shadow-[var(--shadow-pressed)] rounded-xl p-3">
           <span className="text-[10px] text-[var(--color-ink-muted)] uppercase tracking-wider">Last 7 days</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-lg font-bold tabular-nums" style={{ color: stats.color }}>{stats.last7}</span>
@@ -176,11 +180,12 @@ function HabitStatsCard({ stats }: { stats: HabitStats }) {
               style={{
                 width: `${(stats.last7 / 7) * 100}%`,
                 backgroundColor: stats.color,
+                boxShadow: "var(--shadow-led-on)",
               }}
             />
           </div>
         </div>
-        <div className="bg-[var(--color-bg-secondary)] rounded-xl p-3">
+        <div className="bg-[var(--color-bg)] border border-[rgba(255,255,255,0.3)] shadow-[var(--shadow-pressed)] rounded-xl p-3">
           <span className="text-[10px] text-[var(--color-ink-muted)] uppercase tracking-wider">Last 30 days</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="text-lg font-bold tabular-nums" style={{ color: stats.color }}>{stats.last30}</span>
@@ -192,6 +197,7 @@ function HabitStatsCard({ stats }: { stats: HabitStats }) {
               style={{
                 width: `${(stats.last30 / 30) * 100}%`,
                 backgroundColor: stats.color,
+                boxShadow: "var(--shadow-led-on)"
               }}
             />
           </div>
@@ -289,6 +295,8 @@ function OverallCard({
                 style={{
                   height: maxDow > 0 ? `${Math.max(5, (count / maxDow) * 100)}%` : "5%",
                   backgroundColor: count > 0 ? "#818cf8" : "var(--color-cell-empty)",
+                  boxShadow: count > 0 ? "var(--shadow-led-on)" : "var(--shadow-led-off)",
+                  borderTop: count > 0 ? "1px solid rgba(255,255,255,0.6)" : "none",
                 }}
               />
               <span className="text-[9px] text-[var(--color-ink-faint)]">{DAYS[i]}</span>
@@ -349,9 +357,9 @@ export function StatsPage({ isAuthenticated, guestHabits, onBack }: StatsPagePro
       <button
         type="button"
         onClick={onBack}
-        className="luxury-btn-ghost flex items-center gap-1.5"
+        className="luxury-btn-ghost flex items-center gap-1.5 animated-icon-bounce"
       >
-        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
         </svg>

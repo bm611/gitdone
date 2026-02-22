@@ -73,7 +73,7 @@ function AuthForm() {
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+          className="habit-input mb-4"
         />
       )}
       <input
@@ -82,7 +82,7 @@ function AuthForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         required
-        className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+        className="habit-input"
       />
       <input
         type="password"
@@ -91,7 +91,7 @@ function AuthForm() {
         onChange={(e) => setPassword(e.target.value)}
         required
         minLength={8}
-        className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+        className="habit-input"
       />
       {error && (
         <p className="text-xs text-red-400 text-center">{error}</p>
@@ -188,11 +188,12 @@ export function SignIn({ onStartDemo }: SignInProps) {
                 {item.cells.map((filled, i) => (
                   <div
                     key={i}
-                    className="w-4 h-4 rounded-[3px] transition-colors"
+                    className="w-4 h-4 rounded-[3px] transition-all duration-300"
                     style={{
-                      backgroundColor: filled
-                        ? "var(--color-cell-done)"
-                        : "var(--color-cell-empty)",
+                      backgroundColor: filled ? "currentColor" : "var(--color-cell-empty)",
+                      color: filled ? "var(--color-cell-done)" : "transparent",
+                      boxShadow: filled ? "var(--shadow-led-on)" : "var(--shadow-led-off)",
+                      border: filled ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(0,0,0,0.1)",
                     }}
                   />
                 ))}
