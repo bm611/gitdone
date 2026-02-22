@@ -14,9 +14,10 @@ interface GridCellProps {
   isCompleted: boolean;
   date: string;
   onToggleDate: (date: string) => void;
+  disabled?: boolean;
 }
 
-export const GridCell = memo(function GridCell({ isCompleted, date, onToggleDate }: GridCellProps) {
+export const GridCell = memo(function GridCell({ isCompleted, date, onToggleDate, disabled }: GridCellProps) {
   const display = formatDisplayDate(date);
 
   return (
@@ -24,9 +25,9 @@ export const GridCell = memo(function GridCell({ isCompleted, date, onToggleDate
       <button
         type="button"
         aria-label={`${display}${isCompleted ? ", completed" : ""}`}
-        onClick={() => onToggleDate(date)}
+        onClick={() => !disabled && onToggleDate(date)}
         title={display}
-        className="block w-full aspect-square p-0 m-0 cursor-pointer rounded-[4px] transition-[background-color] duration-200 hover:brightness-110"
+        className={`block w-full aspect-square p-0 m-0 rounded-[4px] transition-[background-color] duration-200 ${disabled ? "cursor-default" : "cursor-pointer hover:brightness-110"}`}
         style={{
           backgroundColor: isCompleted ? "currentColor" : "var(--color-cell-empty)",
           color: isCompleted ? "var(--color-cell-done)" : "transparent",

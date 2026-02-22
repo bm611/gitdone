@@ -106,6 +106,27 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
+  .habit-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    white-space: nowrap;
+  }
+
+  .habit-menu-item:hover {
+    background: rgba(163, 177, 198, 0.15);
+  }
+
   .habit-icon-btn {
     display: inline-flex;
     align-items: center;

@@ -39,6 +39,17 @@ export const update = mutation({
   },
 });
 
+export const setStatus = mutation({
+  args: { id: v.id("habits"), status: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await getUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const habit = await ctx.db.get(args.id);
+    if (!habit || habit.userId !== userId) throw new Error("Not found");
+    await ctx.db.patch(args.id, { status: args.status });
+  },
+});
+
 export const remove = mutation({
   args: { id: v.id("habits") },
   handler: async (ctx, args) => {

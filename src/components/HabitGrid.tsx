@@ -72,10 +72,12 @@ export function HabitGrid({
     [completionDates],
   );
 
+  const isInteractive = interactive && !!onToggleDate;
+
   const handleToggle = useCallback((date: string) => {
-    if (!interactive) return;
+    if (!isInteractive) return;
     onToggleDate?.(date);
-  }, [interactive, onToggleDate]);
+  }, [isInteractive, onToggleDate]);
 
   return (
     <div className="grid grid-cols-6 gap-2 sm:gap-3">
@@ -100,6 +102,7 @@ export function HabitGrid({
                       date={cell.date}
                       isCompleted={completedDates.has(cell.date)}
                       onToggleDate={handleToggle}
+                      disabled={!isInteractive}
                     />
                   );
                 })}

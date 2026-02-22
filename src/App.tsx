@@ -30,6 +30,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const createHabit = useMutation(api.habits.create);
   const updateHabit = useMutation(api.habits.update);
   const removeHabit = useMutation(api.habits.remove);
+  const setHabitStatus = useMutation(api.habits.setStatus);
 
   const [guestHabits, setGuestHabits] = useState<GuestHabit[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -37,6 +38,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
   const [view, setView] = useState<"dashboard" | "stats">("dashboard");
   const [showSignIn, setShowSignIn] = useState(false);
+  const [habitTab, setHabitTab] = useState<"active" | "paused" | "archived">("active");
   const displayName = useDisplayName();
 
   const handleCloseForm = () => {
@@ -122,6 +124,24 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 
   const showAuthLoading = isAuthenticated && habits === undefined;
+
+  const filteredHabits = useMemo(() => {
+    if (!habits) return [];
+    return habits.filter((h) => {
+      const s = h.status ?? "active";
+      return s === habitTab;
+    });
+  }, [habits, habitTab]);
+
+  const tabCounts = useMemo(() => {
+    if (!habits) return { active: 0, paused: 0, archived: 0 };
+    const counts = { active: 0, paused: 0, archived: 0 };
+    for (const h of habits) {
+      const s = (h.status ?? "active") as keyof typeof counts;
+      if (s in counts) counts[s]++;
+    }
+    return counts;
+  }, [habits]);
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-ink)] font-body">
@@ -211,23 +231,64 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                     <p className="text-sm text-[var(--color-ink-muted)]">No habits yet — create your first commit.</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {habits?.map((habit) => (
-                      <HabitCard
-                        key={habit._id}
-                        habitId={habit._id}
-                        name={habit.name}
-                        color={habit.color}
-                        onEdit={() => {
-                          setEditingHabit({ type: "remote", habit });
-                          setShowForm(true);
-                        }}
-                        onDelete={() =>
-                          setDeletingHabit({ type: "remote", habit })
-                        }
-                      />
-                    ))}
-                  </div>
+                  <>
+                    {/* Tab bar */}
+                    {(tabCounts.paused > 0 || tabCounts.archived > 0) && (
+                      <div className="flex items-center gap-1 p-1 rounded-xl bg-[var(--color-bg)] border border-[var(--color-divider)] shadow-[var(--shadow-pressed)] mb-2">
+                        {(["active", "paused", "archived"] as const).map((tab) => (
+                          <button
+                            key={tab}
+                            type="button"
+                            onClick={() => setHabitTab(tab)}
+                            className="flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer border-none"
+                            style={{
+                              background: habitTab === tab ? "var(--color-card)" : "transparent",
+                              color: habitTab === tab ? "var(--color-ink)" : "var(--color-ink-muted)",
+                              boxShadow: habitTab === tab ? "var(--shadow-raised)" : "none",
+                            }}
+                          >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            {tabCounts[tab] > 0 && (
+                              <span className="ml-1.5 text-[10px] opacity-60">{tabCounts[tab]}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {filteredHabits.length === 0 ? (
+                      <div className="flex flex-col items-center gap-2 py-12 text-center">
+                        <p className="text-sm text-[var(--color-ink-muted)]">
+                          {habitTab === "active" && "No active habits."}
+                          {habitTab === "paused" && "No paused habits."}
+                          {habitTab === "archived" && "No archived habits."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredHabits.map((habit) => (
+                          <HabitCard
+                            key={habit._id}
+                            habitId={habit._id}
+                            name={habit.name}
+                            color={habit.color}
+                            status={(habit.status as "active" | "paused" | "archived" | undefined) ?? "active"}
+                            onEdit={() => {
+                              setEditingHabit({ type: "remote", habit });
+                              setShowForm(true);
+                            }}
+                            onDelete={() =>
+                              setDeletingHabit({ type: "remote", habit })
+                            }
+                            onPause={() => void setHabitStatus({ id: habit._id, status: "paused" })}
+                            onResume={() => { void setHabitStatus({ id: habit._id, status: "active" }); setHabitTab("active"); }}
+                            onArchive={() => void setHabitStatus({ id: habit._id, status: "archived" })}
+                            onUnarchive={() => { void setHabitStatus({ id: habit._id, status: "active" }); setHabitTab("active"); }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}

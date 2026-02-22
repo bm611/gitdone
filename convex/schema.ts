@@ -7,6 +7,7 @@ export default defineSchema({
     name: v.string(),
     color: v.string(),
     category: v.optional(v.string()),
+    status: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
   completions: defineTable({

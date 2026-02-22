@@ -14,6 +14,11 @@ interface HabitCardProps {
   habitId?: Id<"habits">;
   completionDates?: string[];
   onToggleDate?: (date: string) => void;
+  status?: "active" | "paused" | "archived";
+  onPause?: () => void;
+  onResume?: () => void;
+  onArchive?: () => void;
+  onUnarchive?: () => void;
 }
 
 export function HabitCard({
@@ -24,7 +29,13 @@ export function HabitCard({
   habitId,
   completionDates,
   onToggleDate,
+  status,
+  onPause,
+  onResume,
+  onArchive,
+  onUnarchive,
 }: HabitCardProps) {
+  const isActive = !status || status === "active";
   const remoteCompletions = useQuery(
     api.completions.listByHabit,
     habitId ? { habitId } : "skip",
@@ -50,6 +61,8 @@ export function HabitCard({
   const isDoneToday = optimisticToday ?? completedSet.has(today);
 
   const [glowKey, setGlowKey] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = useCallback((date: string) => {
     if (habitId) {
@@ -72,7 +85,7 @@ export function HabitCard({
   );
 
   return (
-    <div className="habit-card">
+    <div className="habit-card" style={status === "archived" ? { opacity: 0.6 } : undefined}>
       <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4">
         <h3
           className="text-base sm:text-xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
@@ -82,59 +95,125 @@ export function HabitCard({
         >
           {name}
         </h3>
+        {status === "paused" && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 shrink-0">
+            Paused
+          </span>
+        )}
+        {status === "archived" && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-200 text-gray-500 border border-gray-300 shrink-0">
+            Archived
+          </span>
+        )}
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            key={glowKey}
-            type="button"
-            onClick={handleToggleToday}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold cursor-pointer transition-[background-color,color,box-shadow,transform] duration-150"
-            style={{
-              backgroundColor: isDoneToday ? color : "var(--color-pill-bg)",
-              color: isDoneToday ? "#ffffff" : "var(--color-pill-text)",
-              boxShadow: isDoneToday ? "var(--shadow-pressed)" : "var(--shadow-raised)",
-              transform: isDoneToday ? "translateY(2px)" : "translateY(0)",
-              border: isDoneToday ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.3)",
-              textShadow: isDoneToday ? "1px 1px 0px rgba(0,0,0,0.2)" : "none",
-            }}
-            aria-label={isDoneToday ? "Unmark today" : "Mark today as done"}
-          >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              {isDoneToday ? (
-                <polyline points="20 6 9 17 4 12" />
-              ) : (
-                <>
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </>
-              )}
-            </svg>
-            <span>{isDoneToday ? "Done" : "Today"}</span>
-          </button>
+          {isActive && (
+            <button
+              key={glowKey}
+              type="button"
+              onClick={handleToggleToday}
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold cursor-pointer transition-[background-color,color,box-shadow,transform] duration-150"
+              style={{
+                backgroundColor: isDoneToday ? color : "var(--color-pill-bg)",
+                color: isDoneToday ? "#ffffff" : "var(--color-pill-text)",
+                boxShadow: isDoneToday ? "var(--shadow-pressed)" : "var(--shadow-raised)",
+                transform: isDoneToday ? "translateY(2px)" : "translateY(0)",
+                border: isDoneToday ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.3)",
+                textShadow: isDoneToday ? "1px 1px 0px rgba(0,0,0,0.2)" : "none",
+              }}
+              aria-label={isDoneToday ? "Unmark today" : "Mark today as done"}
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                {isDoneToday ? (
+                  <polyline points="20 6 9 17 4 12" />
+                ) : (
+                  <>
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </>
+                )}
+              </svg>
+              <span>{isDoneToday ? "Done" : "Today"}</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={onEdit}
-            aria-label="Edit"
-            className="habit-icon-btn animated-icon-bounce"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
-
-          <button
-            type="button"
-            onClick={onDelete}
-            aria-label="Delete"
-            className="habit-icon-btn animated-icon-bounce"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-          </button>
+          {/* Overflow menu */}
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label="More actions"
+              className="habit-icon-btn animated-icon-bounce"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] bg-[var(--color-card)] border border-[var(--color-divider)] rounded-xl shadow-[var(--shadow-raised)] py-1 animate-in fade-in zoom-in-95 duration-150">
+                  {isActive && (
+                    <button type="button" onClick={() => { setMenuOpen(false); onEdit(); }} className="habit-menu-item">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                      </svg>
+                      Edit
+                    </button>
+                  )}
+                  {isActive && onPause && (
+                    <button type="button" onClick={() => { setMenuOpen(false); onPause(); }} className="habit-menu-item">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="10" y1="4" x2="10" y2="20" />
+                        <line x1="14" y1="4" x2="14" y2="20" />
+                      </svg>
+                      Pause
+                    </button>
+                  )}
+                  {status === "paused" && onResume && (
+                    <button type="button" onClick={() => { setMenuOpen(false); onResume(); }} className="habit-menu-item">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3" />
+                      </svg>
+                      Resume
+                    </button>
+                  )}
+                  {status !== "archived" && onArchive && (
+                    <button type="button" onClick={() => { setMenuOpen(false); onArchive(); }} className="habit-menu-item">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="21 8 21 21 3 21 3 8" />
+                        <rect x="1" y="3" width="22" height="5" />
+                        <line x1="10" y1="12" x2="14" y2="12" />
+                      </svg>
+                      Archive
+                    </button>
+                  )}
+                  {status === "archived" && onUnarchive && (
+                    <button type="button" onClick={() => { setMenuOpen(false); onUnarchive(); }} className="habit-menu-item">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="21 8 21 21 3 21 3 8" />
+                        <rect x="1" y="3" width="22" height="5" />
+                        <line x1="12" y1="10" x2="12" y2="17" />
+                        <polyline points="9 13 12 10 15 13" />
+                      </svg>
+                      Unarchive
+                    </button>
+                  )}
+                  <div className="h-px bg-[var(--color-divider)] my-1" />
+                  <button type="button" onClick={() => { setMenuOpen(false); onDelete(); }} className="habit-menu-item text-red-500">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -143,7 +222,7 @@ export function HabitCard({
       ) : (
         <HabitGrid
           completionDates={resolvedDates}
-          onToggleDate={handleToggle}
+          onToggleDate={isActive ? handleToggle : undefined}
         />
       )}
     </div>
