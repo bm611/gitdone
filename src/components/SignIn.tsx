@@ -1,4 +1,5 @@
-import { SignUpButton } from "@clerk/clerk-react";
+import { useState } from "react";
+import { authClient } from "../lib/auth-client";
 
 interface SignInProps {
   onStartDemo?: () => void;
@@ -25,7 +26,100 @@ const HOW_IT_WORKS = [
   },
 ];
 
+function AuthForm() {
+  const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      if (mode === "signUp") {
+        const { error } = await authClient.signUp.email({
+          email,
+          password,
+          name: name || email.split("@")[0],
+        });
+        if (error) {
+          setError(error.message || "Sign up failed");
+        }
+      } else {
+        const { error } = await authClient.signIn.email({
+          email,
+          password,
+        });
+        if (error) {
+          setError(error.message || "Sign in failed");
+        }
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full max-w-xs mx-auto space-y-4">
+      {mode === "signUp" && (
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+        />
+      )}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        minLength={8}
+        className="w-full px-4 py-2.5 bg-[var(--color-bg-secondary)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink)] placeholder:text-[var(--color-ink-faint)] focus:outline-none focus:border-[var(--color-cell-done)] transition-colors font-body"
+      />
+      {error && (
+        <p className="text-xs text-red-400 text-center">{error}</p>
+      )}
+      <button
+        type="submit"
+        disabled={loading}
+        className="luxury-btn-filled w-full py-2.5 text-sm disabled:opacity-50"
+      >
+        {loading ? "..." : mode === "signIn" ? "Sign In" : "Sign Up"}
+      </button>
+      <p className="text-xs text-center text-[var(--color-ink-muted)]">
+        {mode === "signIn" ? "Don't have an account?" : "Already have an account?"}{" "}
+        <button
+          type="button"
+          onClick={() => { setMode(mode === "signIn" ? "signUp" : "signIn"); setError(""); }}
+          className="text-[var(--color-cell-done)] hover:underline bg-transparent border-none p-0 cursor-pointer font-body"
+        >
+          {mode === "signIn" ? "Sign Up" : "Sign In"}
+        </button>
+      </p>
+    </form>
+  );
+}
+
 export function SignIn({ onStartDemo }: SignInProps) {
+  const [showAuthForm, setShowAuthForm] = useState(false);
+
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-700">
       <div className="habit-card w-full mx-auto text-center py-12">
@@ -39,20 +133,23 @@ export function SignIn({ onStartDemo }: SignInProps) {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xs sm:max-w-none mx-auto">
-          {onStartDemo && (
-            <button
-              type="button"
-              onClick={onStartDemo}
-              className="luxury-btn-filled w-full sm:w-auto px-8 py-3 text-base shadow-lg shadow-[var(--color-primary)]/20"
-            >
-              Try Demo
-            </button>
-          )}
+        {showAuthForm ? (
+          <AuthForm />
+        ) : (
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xs sm:max-w-none mx-auto">
+            {onStartDemo && (
+              <button
+                type="button"
+                onClick={onStartDemo}
+                className="luxury-btn-filled w-full sm:w-auto px-8 py-3 text-base shadow-lg shadow-[var(--color-primary)]/20"
+              >
+                Try Demo
+              </button>
+            )}
 
-          <SignUpButton mode="redirect" forceRedirectUrl="/">
             <button
               type="button"
+              onClick={() => setShowAuthForm(true)}
               className={onStartDemo
                 ? "luxury-btn-ghost w-full sm:w-auto px-8 py-3 text-base border-2 border-transparent hover:border-[var(--color-divider)]"
                 : "luxury-btn-filled text-base px-8 py-3"
@@ -60,8 +157,8 @@ export function SignIn({ onStartDemo }: SignInProps) {
             >
               {onStartDemo ? "Sign In / Up" : "Get Started"}
             </button>
-          </SignUpButton>
-        </div>
+          </div>
+        )}
 
         <p className="text-xs text-[var(--color-ink-faint)] mt-8">
           Free to use · No credit card required · Open Source

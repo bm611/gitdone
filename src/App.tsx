@@ -8,7 +8,6 @@ import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { StatsPage } from "./components/StatsPage";
 import { UserMenu } from "./components/UserMenu";
-import { SignInButton } from "@clerk/clerk-react";
 import { SignIn } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
@@ -152,15 +151,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
               <span className="md:hidden"><HugeiconsIcon icon={GithubIcon} size={18} color="currentColor" strokeWidth={1.5} /></span>
               <span className="hidden md:inline"><HugeiconsIcon icon={GithubIcon} size={22} color="currentColor" strokeWidth={1.5} /></span>
             </a>
-            {isAuthenticated ? (
-              <UserMenu />
-            ) : (
-              <SignInButton mode="redirect" forceRedirectUrl="/">
-                <button type="button" className="luxury-btn-filled">
-                  Sign In
-                </button>
-              </SignInButton>
-            )}
+            {isAuthenticated && <UserMenu />}
           </div>
         </div>
 

@@ -1,6 +1,6 @@
-import { useUser } from "@clerk/clerk-react";
+import { authClient } from "./auth-client";
 
 export function useDisplayName() {
-  const { user } = useUser();
-  return user?.username || user?.firstName || "Guest";
+  const { data: session } = authClient.useSession();
+  return session?.user?.name || "Guest";
 }

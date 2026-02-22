@@ -1,10 +1,9 @@
-import { useClerk } from "@clerk/clerk-react";
 import { useState, useRef, useEffect } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { UserIcon } from "@hugeicons/core-free-icons";
+import { authClient } from "../lib/auth-client";
 
 export function UserMenu() {
-  const { signOut, openUserProfile } = useClerk();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -35,14 +34,10 @@ export function UserMenu() {
         <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--color-card)] backdrop-blur-xl border border-[var(--color-divider)] rounded-xl shadow-[0_8px_40px_rgba(0,0,0,0.3)] z-50">
           <div className="py-2">
             <button
-              onClick={() => { openUserProfile(); setIsOpen(false); }}
-              className="w-full text-left px-5 py-2.5 text-sm font-body text-[var(--color-ink-light)] hover:text-[var(--color-ink)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-200"
-            >
-              Profile
-            </button>
-            <div className="luxury-divider mx-5 my-1" />
-            <button
-              onClick={() => signOut()}
+              onClick={() => {
+                authClient.signOut();
+                setIsOpen(false);
+              }}
               className="w-full text-left px-5 py-2.5 text-sm font-body text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] hover:bg-[rgba(255,255,255,0.05)] transition-colors duration-200"
             >
               Sign Out
