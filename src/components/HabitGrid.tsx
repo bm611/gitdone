@@ -99,7 +99,7 @@ export function HabitGrid({
                       key={cell.date}
                       date={cell.date}
                       isCompleted={completedDates.has(cell.date)}
-                      onClick={() => handleToggle(cell.date)}
+                      onToggleDate={handleToggle}
                     />
                   );
                 })}

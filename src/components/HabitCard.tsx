@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -37,20 +37,32 @@ export function HabitCard({
   }, [completionDates, remoteCompletions]);
 
   const today = todayString();
-  const isDoneToday = completedSet.has(today);
+
+  const [optimisticToday, setOptimisticToday] = useState<boolean | null>(null);
+  const prevRemoteRef = useRef(remoteCompletions);
+  if (remoteCompletions !== prevRemoteRef.current) {
+    prevRemoteRef.current = remoteCompletions;
+    if (optimisticToday !== null) {
+      setOptimisticToday(null);
+    }
+  }
+
+  const isDoneToday = optimisticToday ?? completedSet.has(today);
 
   const [glowKey, setGlowKey] = useState(0);
 
-  const handleToggle = (date: string) => {
+  const handleToggle = useCallback((date: string) => {
     if (habitId) {
       void toggle({ habitId, date });
     } else {
       onToggleDate?.(date);
     }
-  };
+  }, [habitId, toggle, onToggleDate]);
 
   const handleToggleToday = () => {
-    if (!isDoneToday) setGlowKey((k) => k + 1);
+    const newState = !isDoneToday;
+    setOptimisticToday(newState);
+    if (newState) setGlowKey((k) => k + 1);
     handleToggle(today);
   };
 

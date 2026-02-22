@@ -13,10 +13,10 @@ function formatDisplayDate(date: string): string {
 interface GridCellProps {
   isCompleted: boolean;
   date: string;
-  onClick: () => void;
+  onToggleDate: (date: string) => void;
 }
 
-export const GridCell = memo(function GridCell({ isCompleted, date, onClick }: GridCellProps) {
+export const GridCell = memo(function GridCell({ isCompleted, date, onToggleDate }: GridCellProps) {
   const display = formatDisplayDate(date);
 
   return (
@@ -24,7 +24,7 @@ export const GridCell = memo(function GridCell({ isCompleted, date, onClick }: G
       <button
         type="button"
         aria-label={`${display}${isCompleted ? ", completed" : ""}`}
-        onClick={onClick}
+        onClick={() => onToggleDate(date)}
         title={display}
         className="block w-full aspect-square p-0 m-0 cursor-pointer rounded-[4px] transition-[background-color] duration-200 hover:brightness-110"
         style={{
