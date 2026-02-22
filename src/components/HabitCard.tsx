@@ -143,7 +143,7 @@ export function HabitCard({
               type="button"
               onClick={() => setMenuOpen((v) => !v)}
               aria-label="More actions"
-              className="habit-icon-btn animated-icon-bounce"
+              className="habit-icon-btn"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <circle cx="12" cy="5" r="2" />

@@ -10,7 +10,7 @@ import { StatsPage } from "./components/StatsPage";
 import { UserMenu } from "./components/UserMenu";
 import { SignIn, AuthForm } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
+import { AnalyticsIcon, GithubIcon, GitMergeIcon } from "@hugeicons/core-free-icons";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useDisplayName } from "./lib/useDisplayName";
 type HabitDraft = { name: string; color: string; category?: string };
@@ -145,12 +145,17 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-ink)] font-body">
-      <div className="mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-6 space-y-4">
+      <div className="mx-auto max-w-3xl px-3 sm:px-4 py-4 sm:py-6 space-y-4 md:space-y-6">
         {/* Header bar */}
         <div className="habit-header-bar">
-          <div className="flex flex-col">
-            <span className="text-lg font-pixel">GitDone</span>
-            <span className="text-xs text-[var(--color-ink-muted)]">track habits like git commits</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[var(--color-bg)] rounded-xl shadow-[var(--shadow-pressed)] text-[var(--color-cell-done)] animated-icon-bounce">
+              <HugeiconsIcon icon={GitMergeIcon} className="w-5 h-5 md:w-6 md:h-6" color="currentColor" strokeWidth={2.5} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xl font-pixel text-[var(--color-ink)] drop-shadow-sm">GitDone</span>
+              <span className="text-[10px] md:text-xs font-bold text-[var(--color-ink-muted)]">track habits like git commits</span>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -184,9 +189,20 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         </div>
 
         {isAuthenticated && (
-          <h2 className="text-xl font-pixel text-[var(--color-ink)]">
-            Welcome, {displayName}
-          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <h2 className="text-xl md:text-2xl font-pixel text-[var(--color-ink)]">
+              Welcome, {displayName}
+            </h2>
+            {view === "dashboard" && (
+              <button
+                type="button"
+                onClick={() => { setEditingHabit(null); setShowForm(true); }}
+                className="habit-btn-create w-full sm:w-auto"
+              >
+                Create New Habit
+              </button>
+            )}
+          </div>
         )}
 
         {view === "stats" ? (
@@ -201,13 +217,15 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           </div>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={() => { setEditingHabit(null); setShowForm(true); }}
-              className="habit-btn-create w-full mb-6"
-            >
-              + Create New Habit
-            </button>
+            {!isAuthenticated && (
+              <button
+                type="button"
+                onClick={() => { setEditingHabit(null); setShowForm(true); }}
+                className="habit-btn-create w-full mb-6"
+              >
+                + Create New Habit
+              </button>
+            )}
 
             {!isAuthenticated && (
               <div className="text-center mb-6 py-3 px-4 bg-[var(--color-card)] border border-[var(--color-divider)] rounded-lg text-sm text-[var(--color-ink-muted)] flex items-center justify-center gap-2 shadow-[var(--shadow-pressed)] animate-in fade-in">
