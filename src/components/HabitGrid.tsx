@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { DayCell } from "../lib/dates";
 import { generateCalendarMonthsGrid } from "../lib/dates";
 import { GridCell } from "./GridCell";
@@ -72,10 +72,10 @@ export function HabitGrid({
     [completionDates],
   );
 
-  const handleToggle = (date: string) => {
+  const handleToggle = useCallback((date: string) => {
     if (!interactive) return;
     onToggleDate?.(date);
-  };
+  }, [interactive, onToggleDate]);
 
   return (
     <div className="grid grid-cols-6 gap-2 sm:gap-3">

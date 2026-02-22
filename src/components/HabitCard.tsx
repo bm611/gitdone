@@ -76,7 +76,7 @@ export function HabitCard({
             key={glowKey}
             type="button"
             onClick={handleToggleToday}
-            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold cursor-pointer transition-all duration-150"
+            className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold cursor-pointer transition-[background-color,color,box-shadow,transform] duration-150"
             style={{
               backgroundColor: isDoneToday ? color : "var(--color-pill-bg)",
               color: isDoneToday ? "#ffffff" : "var(--color-pill-text)",

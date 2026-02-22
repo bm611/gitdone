@@ -138,8 +138,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
               className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-cell-done)] transition-colors cursor-pointer bg-transparent border-none p-0 animated-icon-bounce"
               aria-label="Stats"
             >
-              <span className="md:hidden"><HugeiconsIcon icon={AnalyticsIcon} size={18} color="currentColor" strokeWidth={1.5} /></span>
-              <span className="hidden md:inline"><HugeiconsIcon icon={AnalyticsIcon} size={22} color="currentColor" strokeWidth={1.5} /></span>
+              <HugeiconsIcon icon={AnalyticsIcon} className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" color="currentColor" strokeWidth={1.5} />
             </button>
             <a
               href="https://github.com/bm611/gitdone"
@@ -148,8 +147,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
               className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors animated-icon-spin"
               aria-label="GitHub"
             >
-              <span className="md:hidden"><HugeiconsIcon icon={GithubIcon} size={18} color="currentColor" strokeWidth={1.5} /></span>
-              <span className="hidden md:inline"><HugeiconsIcon icon={GithubIcon} size={22} color="currentColor" strokeWidth={1.5} /></span>
+              <HugeiconsIcon icon={GithubIcon} className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" color="currentColor" strokeWidth={1.5} />
             </a>
             {isAuthenticated && <UserMenu />}
           </div>

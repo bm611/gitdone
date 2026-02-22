@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
@@ -14,7 +16,7 @@ interface GridCellProps {
   onClick: () => void;
 }
 
-export function GridCell({ isCompleted, date, onClick }: GridCellProps) {
+export const GridCell = memo(function GridCell({ isCompleted, date, onClick }: GridCellProps) {
   const display = formatDisplayDate(date);
 
   return (
@@ -24,7 +26,7 @@ export function GridCell({ isCompleted, date, onClick }: GridCellProps) {
         aria-label={`${display}${isCompleted ? ", completed" : ""}`}
         onClick={onClick}
         title={display}
-        className="block w-full aspect-square p-0 m-0 cursor-pointer rounded-[4px] transition-all duration-300 hover:brightness-110"
+        className="block w-full aspect-square p-0 m-0 cursor-pointer rounded-[4px] transition-[background-color] duration-200 hover:brightness-110"
         style={{
           backgroundColor: isCompleted ? "currentColor" : "var(--color-cell-empty)",
           color: isCompleted ? "var(--color-cell-done)" : "transparent",
@@ -40,4 +42,4 @@ export function GridCell({ isCompleted, date, onClick }: GridCellProps) {
       </div>
     </div>
   );
-}
+});
