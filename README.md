@@ -5,7 +5,7 @@ Track habits like git commits — a GitHub-style contribution grid for your dail
 ## Features
 
 - **GitHub-style habit grid** — visualize streaks and consistency at a glance
-- **Authentication** — sign in with Clerk to persist your data
+- **Authentication** — sign in with Better Auth to persist your data
 - **Demo mode** — try it out instantly without signing in
 - **Custom colors & categories** — personalize each habit
 - **Real-time sync** — powered by Convex for instant updates
@@ -14,7 +14,7 @@ Track habits like git commits — a GitHub-style contribution grid for your dail
 
 - **Frontend:** React 19, TypeScript, Tailwind CSS v4
 - **Backend:** [Convex](https://convex.dev) (database + real-time queries/mutations)
-- **Auth:** [Clerk](https://clerk.com)
+- **Auth:** [Better Auth](https://better-auth.com)
 - **Build:** Vite 7
 
 ## Getting Started
@@ -23,7 +23,7 @@ Track habits like git commits — a GitHub-style contribution grid for your dail
 
 - Node.js 18+
 - A [Convex](https://convex.dev) account
-- A [Clerk](https://clerk.com) application
+- A [Better Auth](https://better-auth.com) configuration
 
 ### Installation
 
@@ -41,7 +41,7 @@ Configure your Convex and Clerk credentials:
 npx convex dev   # Follow prompts to link your Convex project
 ```
 
-Set up Clerk by adding your publishable key to your environment (see [Convex + Clerk docs](https://docs.convex.dev/auth/clerk)).
+Set up Better Auth by configuring your authentication provider (see [Better Auth docs](https://better-auth.com/docs)).
 
 ### Development
 
