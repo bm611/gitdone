@@ -88,7 +88,7 @@ export function HabitCard({
     <div className="habit-card" style={status === "archived" ? { opacity: 0.6 } : undefined}>
       <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4">
         <h3
-          className="text-base sm:text-xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
+          className="text-xl sm:text-2xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
           style={{
             backgroundImage: `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 60%, #000))`,
           }}
