@@ -77,8 +77,14 @@ body {
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    padding: 1.25rem;
+    padding: 0.875rem;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 640px) {
+    .habit-card {
+      padding: 1.25rem;
+    }
   }
 
   .habit-pill {

@@ -78,7 +78,7 @@ export function HabitGrid({
   };
 
   return (
-    <div className="grid grid-cols-6 gap-3">
+    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
       {monthGroups.map((group) => (
         <div key={group.label} className="flex flex-col gap-1">
           <span className="text-xs font-bold text-[var(--color-ink)] mb-0.5 truncate">

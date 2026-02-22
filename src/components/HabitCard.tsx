@@ -61,9 +61,9 @@ export function HabitCard({
 
   return (
     <div className="habit-card">
-      <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4">
         <h3
-          className="text-xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
+          className="text-base sm:text-xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
           style={{
             backgroundImage: `linear-gradient(135deg, ${color}, color-mix(in srgb, ${color} 60%, #000))`,
           }}
@@ -76,7 +76,7 @@ export function HabitCard({
             key={glowKey}
             type="button"
             onClick={handleToggleToday}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer border-none transition-all duration-150${isDoneToday ? " habit-today-done" : ""}`}
+            className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold cursor-pointer border-none transition-all duration-150${isDoneToday ? " habit-today-done" : ""}`}
             style={{
               background: isDoneToday ? `color-mix(in srgb, ${color} 60%, #000)` : "var(--color-pill-bg)",
               color: isDoneToday ? "#fff" : "var(--color-pill-text)",

@@ -124,7 +124,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-ink)] font-body">
-      <div className="mx-auto max-w-2xl px-4 py-6 space-y-4">
+      <div className="mx-auto max-w-2xl px-3 sm:px-4 py-4 sm:py-6 space-y-4">
         {/* Header bar */}
         <div className="habit-header-bar">
           <div className="flex flex-col">

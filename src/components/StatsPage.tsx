@@ -156,7 +156,7 @@ function HabitStatsCard({ stats }: { stats: HabitStats }) {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-4">
         <StatNumber label="Total" value={stats.totalDays} color={stats.color} />
         <StatNumber label="Streak" value={stats.currentStreak} />
         <StatNumber label="Best" value={stats.longestStreak} />
@@ -252,7 +252,7 @@ function OverallCard({
     <div className="habit-card space-y-6">
       <h3 className="text-base font-semibold">Overall Stats</h3>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <StatNumber label="Habits" value={totalHabits} color="#818cf8" />
         <StatNumber label="Completions" value={totalCompletions} color="#4ade80" />
         <StatNumber label="Best Streak" value={bestStreak} color="#f59e0b" />

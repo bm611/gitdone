@@ -31,8 +31,8 @@ export function ConfirmDialog({
       onClick={handleOverlayClick}
       onKeyDown={(e) => e.key === "Escape" && onCancel()}
     >
-      <div className="bg-white w-full max-w-sm mx-4 shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
-        <div className="p-8 sm:p-10">
+      <div className="bg-white w-full max-w-sm mx-4 rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.15)]">
+        <div className="p-5 sm:p-10">
           <h3 className="luxury-heading text-xl mb-3">{title}</h3>
           <p className="text-sm text-[var(--color-ink-muted)] leading-relaxed mb-8">
             {description}

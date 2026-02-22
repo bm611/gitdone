@@ -79,7 +79,7 @@ export function HabitForm({
       onKeyDown={handleKeyDown}
     >
       <div className="bg-[var(--color-card)] w-full max-w-md mx-4 rounded-2xl shadow-[0_24px_80px_rgba(0,0,0,0.12)]">
-        <div className="p-6 sm:p-8">
+        <div className="p-4 sm:p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="luxury-heading text-xl">
               {editingHabit ? "Edit habit" : "New habit"}
@@ -131,7 +131,7 @@ export function HabitForm({
 
             <div>
               <span className="luxury-subheading block mb-3">Color</span>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
                 {COLORS.map((c) => (
                   <button
                     key={c.value}
@@ -139,7 +139,7 @@ export function HabitForm({
                     onClick={() => setColor(c.value)}
                     aria-label={c.name}
                     className={cn(
-                      "w-7 h-7 rounded-full transition-all duration-200",
+                      "w-6 h-6 sm:w-7 sm:h-7 rounded-full transition-all duration-200",
                       color === c.value
                         ? "ring-2 ring-offset-3 ring-[var(--color-ink-muted)]"
                         : "hover:scale-110"
