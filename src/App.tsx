@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -8,7 +8,7 @@ import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { StatsPage } from "./components/StatsPage";
 import { UserMenu } from "./components/UserMenu";
-import { SignIn } from "./components/SignIn";
+import { SignIn, AuthForm } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
 import { useDisplayName } from "./lib/useDisplayName";
@@ -36,6 +36,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
   const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
   const [view, setView] = useState<"dashboard" | "stats">("dashboard");
+  const [showSignIn, setShowSignIn] = useState(false);
   const displayName = useDisplayName();
 
   const handleCloseForm = () => {
@@ -149,7 +150,15 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             >
               <HugeiconsIcon icon={GithubIcon} className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" color="currentColor" strokeWidth={1.5} />
             </a>
-            {isAuthenticated && <UserMenu />}
+            {isAuthenticated ? <UserMenu /> : sortedGuestHabits.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSignIn(true)}
+                className="luxury-btn-ghost px-3 py-1.5 text-xs font-bold"
+              >
+                Sign In / Up
+              </button>
+            )}
           </div>
         </div>
 
@@ -167,7 +176,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           />
         ) : !isAuthenticated && sortedGuestHabits.length === 0 ? (
           <div className="py-12 flex justify-center animate-in fade-in duration-500">
-            <SignIn onStartDemo={() => { setEditingHabit(null); setShowForm(true); }} />
+            <SignIn onStartDemo={() => { setEditingHabit(null); setShowForm(true); }} onSignIn={() => setShowSignIn(true)} />
           </div>
         ) : (
           <>
@@ -265,6 +274,42 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           onCancel={() => setDeletingHabit(null)}
         />
       )}
+
+      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
+    </div>
+  );
+}
+
+function SignInModal({ onClose }: { onClose: () => void }) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Sign In"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-overlay)] font-body"
+      onClick={(e) => e.target === overlayRef.current && onClose()}
+      onKeyDown={(e) => e.key === "Escape" && onClose()}
+    >
+      <div className="bg-[var(--color-card)] border border-[var(--color-divider)] w-full max-w-sm mx-4 rounded-2xl shadow-[var(--shadow-raised)] p-6 sm:p-8">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="luxury-heading text-[var(--color-ink)] text-lg">Sign In / Sign Up</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors bg-transparent border-none cursor-pointer p-1"
+            aria-label="Close"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <AuthForm />
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { authClient } from "../lib/auth-client";
 
 interface SignInProps {
   onStartDemo?: () => void;
+  onSignIn?: () => void;
 }
 
 const HOW_IT_WORKS = [
@@ -26,7 +27,7 @@ const HOW_IT_WORKS = [
   },
 ];
 
-function AuthForm() {
+export function AuthForm() {
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -117,9 +118,7 @@ function AuthForm() {
   );
 }
 
-export function SignIn({ onStartDemo }: SignInProps) {
-  const [showAuthForm, setShowAuthForm] = useState(false);
-
+export function SignIn({ onStartDemo, onSignIn }: SignInProps) {
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-700">
       <div className="habit-card w-full mx-auto text-center py-12">
@@ -133,32 +132,28 @@ export function SignIn({ onStartDemo }: SignInProps) {
           </p>
         </div>
 
-        {showAuthForm ? (
-          <AuthForm />
-        ) : (
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xs sm:max-w-none mx-auto">
-            {onStartDemo && (
-              <button
-                type="button"
-                onClick={onStartDemo}
-                className="luxury-btn-filled w-full sm:w-auto px-8 py-3 text-base shadow-lg shadow-[var(--color-primary)]/20"
-              >
-                Try Demo
-              </button>
-            )}
-
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-xs sm:max-w-none mx-auto">
+          {onStartDemo && (
             <button
               type="button"
-              onClick={() => setShowAuthForm(true)}
-              className={onStartDemo
-                ? "luxury-btn-ghost w-full sm:w-auto px-8 py-3 text-base border-2 border-transparent hover:border-[var(--color-divider)]"
-                : "luxury-btn-filled text-base px-8 py-3"
-              }
+              onClick={onStartDemo}
+              className="luxury-btn-filled w-full sm:w-auto px-8 py-3 text-base shadow-lg shadow-[var(--color-primary)]/20"
             >
-              {onStartDemo ? "Sign In / Up" : "Get Started"}
+              Try Demo
             </button>
-          </div>
-        )}
+          )}
+
+          <button
+            type="button"
+            onClick={onSignIn}
+            className={onStartDemo
+              ? "luxury-btn-ghost w-full sm:w-auto px-8 py-3 text-base border-2 border-transparent hover:border-[var(--color-divider)]"
+              : "luxury-btn-filled text-base px-8 py-3"
+            }
+          >
+            {onStartDemo ? "Sign In / Up" : "Get Started"}
+          </button>
+        </div>
 
         <p className="text-xs text-[var(--color-ink-faint)] mt-8">
           Free to use · No credit card required · Open Source
