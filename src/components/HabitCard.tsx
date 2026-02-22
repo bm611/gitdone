@@ -50,9 +50,9 @@ export function HabitCard({
   const today = todayString();
 
   const [optimisticToday, setOptimisticToday] = useState<boolean | null>(null);
-  const prevRemoteRef = useRef(remoteCompletions);
-  if (remoteCompletions !== prevRemoteRef.current) {
-    prevRemoteRef.current = remoteCompletions;
+  const [prevRemote, setPrevRemote] = useState(remoteCompletions);
+  if (remoteCompletions !== prevRemote) {
+    setPrevRemote(remoteCompletions);
     if (optimisticToday !== null) {
       setOptimisticToday(null);
     }

@@ -11,8 +11,8 @@ import { UserMenu } from "./components/UserMenu";
 import { SignIn, AuthForm } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon } from "@hugeicons/core-free-icons";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { useDisplayName } from "./lib/useDisplayName";
-
 type HabitDraft = { name: string; color: string; category?: string };
 
 type EditingHabitState =
@@ -170,6 +170,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             >
               <HugeiconsIcon icon={GithubIcon} className="w-[18px] h-[18px] md:w-[22px] md:h-[22px]" color="currentColor" strokeWidth={1.5} />
             </a>
+            <ThemeToggle />
             {isAuthenticated ? <UserMenu /> : sortedGuestHabits.length > 0 && (
               <button
                 type="button"

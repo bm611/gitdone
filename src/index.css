@@ -43,6 +43,35 @@
   --shadow-input: inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
 }
 
+:root.dark {
+  --color-bg: #1a1e23;
+  --color-card: #20242a;
+  --color-bg-secondary: #16191d;
+  --color-white: #ffffff;
+  --color-ink: #e2e8f0;
+  --color-ink-light: #cbd5e1;
+  --color-ink-muted: #94a3b8;
+  --color-ink-faint: #64748b;
+
+  --color-divider: rgba(255, 255, 255, 0.08);
+  --color-cell-empty: #272c33;
+  --color-cell-done: #22c55e;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+
+  --color-pill-bg: #272c33;
+  --color-pill-text: #cbd5e1;
+
+  --color-btn-create-bg: #22272e;
+  --color-btn-create-text: #e2e8f0;
+
+  --shadow-raised: 7px 7px 14px rgba(0, 0, 0, 0.6), -7px -7px 14px rgba(255, 255, 255, 0.04);
+  --shadow-raised-hover: 9px 9px 18px rgba(0, 0, 0, 0.7), -9px -9px 18px rgba(255, 255, 255, 0.05);
+  --shadow-pressed: inset 5px 5px 8px rgba(0, 0, 0, 0.6), inset -5px -5px 8px rgba(255, 255, 255, 0.03);
+  --shadow-led-off: inset 3px 3px 6px rgba(0, 0, 0, 0.7), inset -3px -3px 6px rgba(255, 255, 255, 0.03);
+  --shadow-led-on: inset 2px 2px 5px rgba(255, 255, 255, 0.2), inset -2px -2px 5px rgba(0, 0, 0, 0.5), 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.3);
+  --shadow-input: inset 3px 3px 6px rgba(0, 0, 0, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.03);
+}
+
 html,
 body,
 #root {
