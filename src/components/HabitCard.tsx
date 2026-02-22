@@ -85,7 +85,7 @@ export function HabitCard({
   );
 
   return (
-    <div className="habit-card" style={status === "archived" ? { opacity: 0.6 } : undefined}>
+    <div className={`habit-card ${menuOpen ? "z-50 relative" : ""}`} style={status === "archived" ? { opacity: 0.6 } : undefined}>
       <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4">
         <h3
           className="text-xl sm:text-2xl font-semibold tracking-tight bg-clip-text text-transparent min-w-0 truncate"
@@ -153,8 +153,8 @@ export function HabitCard({
             </button>
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] bg-[var(--color-card)] border border-[var(--color-divider)] rounded-xl shadow-[var(--shadow-raised)] py-1 animate-in fade-in zoom-in-95 duration-150">
+                <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 z-[110] min-w-[140px] bg-[var(--color-card)] border border-[var(--color-divider)] rounded-xl shadow-[var(--shadow-raised)] py-1 animate-in fade-in zoom-in-95 duration-150">
                   {isActive && (
                     <button type="button" onClick={() => { setMenuOpen(false); onEdit(); }} className="habit-menu-item">
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
