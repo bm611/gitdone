@@ -32,7 +32,7 @@ export const GridCell = memo(function GridCell({ isCompleted, date, onToggleDate
           backgroundColor: isCompleted ? "currentColor" : "var(--color-cell-empty)",
           color: isCompleted ? "var(--color-cell-done)" : "transparent",
           boxShadow: isCompleted ? "var(--shadow-led-on)" : "var(--shadow-led-off)",
-          border: isCompleted ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(0,0,0,0.1)",
+          border: isCompleted ? "1px solid rgba(255,255,255,0.4)" : "1px solid rgba(255,255,255,0.06)",
         }}
       />
 
