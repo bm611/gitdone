@@ -7,9 +7,8 @@ interface HabitGridProps {
   completionDates?: string[];
   onToggleDate?: (date: string) => void;
   interactive?: boolean;
+  monthWindow?: 3 | 6;
 }
-
-const GRID_MONTH_WINDOW = 6;
 
 const FULL_MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -63,8 +62,9 @@ export function HabitGrid({
   completionDates,
   onToggleDate,
   interactive = true,
+  monthWindow = 6,
 }: HabitGridProps) {
-  const cells = useMemo(() => generateCalendarMonthsGrid(GRID_MONTH_WINDOW), []);
+  const cells = useMemo(() => generateCalendarMonthsGrid(monthWindow), [monthWindow]);
   const monthGroups = useMemo(() => groupByMonth(cells), [cells]);
 
   const completedDates = useMemo(
@@ -80,7 +80,7 @@ export function HabitGrid({
   }, [isInteractive, onToggleDate]);
 
   return (
-    <div className="grid grid-cols-6 gap-2 sm:gap-3">
+    <div className={`grid gap-2 sm:gap-3 ${monthWindow === 3 ? "grid-cols-3" : "grid-cols-6"}`}>
       {monthGroups.map((group) => (
         <div key={group.label} className="flex flex-col gap-1">
           <span className="text-xs font-bold text-[var(--color-ink)] mb-0.5 truncate">

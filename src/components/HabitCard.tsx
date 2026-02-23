@@ -62,6 +62,7 @@ export function HabitCard({
 
   const [glowKey, setGlowKey] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [monthWindow, setMonthWindow] = useState<3 | 6>(6);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = useCallback((date: string) => {
@@ -107,6 +108,20 @@ export function HabitCard({
         )}
 
         <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setMonthWindow((w) => (w === 6 ? 3 : 6))}
+            className="inline-flex items-center px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold cursor-pointer transition-[box-shadow,transform] duration-150"
+            style={{
+              backgroundColor: "var(--color-pill-bg)",
+              color: "var(--color-pill-text)",
+              boxShadow: "var(--shadow-raised)",
+              border: "1px solid rgba(255,255,255,0.3)",
+            }}
+            aria-label={`Show ${monthWindow === 6 ? 3 : 6} months`}
+          >
+            {monthWindow === 6 ? "6M" : "3M"}
+          </button>
           {isActive && (
             <button
               key={glowKey}
@@ -223,6 +238,7 @@ export function HabitCard({
         <HabitGrid
           completionDates={resolvedDates}
           onToggleDate={isActive ? handleToggle : undefined}
+          monthWindow={monthWindow}
         />
       )}
     </div>
