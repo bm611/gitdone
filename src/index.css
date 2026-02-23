@@ -24,7 +24,7 @@
 
   --color-divider: rgba(255, 255, 255, 0.4);
   --color-cell-empty: #e0e5ec;
-  --color-cell-done: #4ade80;
+  --color-cell-done: #22c55e;
   /* LED Green */
   --color-overlay: rgba(163, 177, 198, 0.5);
 
@@ -39,7 +39,7 @@
   --shadow-raised-hover: 12px 12px 20px rgba(163, 177, 198, 0.6), -12px -12px 20px rgba(255, 255, 255, 0.5);
   --shadow-pressed: inset 6px 6px 10px rgba(163, 177, 198, 0.6), inset -6px -6px 10px rgba(255, 255, 255, 0.5);
   --shadow-led-off: inset 3px 3px 6px rgba(163, 177, 198, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
-  --shadow-led-on: inset 2px 2px 5px rgba(255, 255, 255, 0.5), inset -2px -2px 5px rgba(0, 0, 0, 0.1), 0 0 10px #4ade80, 0 0 20px rgba(74, 222, 128, 0.4);
+  --shadow-led-on: inset 2px 2px 5px rgba(255, 255, 255, 0.8), inset -2px -2px 5px rgba(0, 0, 0, 0.2), 0 0 12px #22c55e, 0 0 24px rgba(34, 197, 94, 0.6);
   --shadow-input: inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
 }
 
