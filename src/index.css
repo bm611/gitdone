@@ -215,30 +215,56 @@ body {
 
   .habit-btn-create {
     font-family: var(--font-pixel);
-    font-size: 1rem;
-    font-weight: 700;
-    padding: 0.85rem 1.5rem;
-    background: var(--color-btn-create-bg);
-    color: var(--color-btn-create-text);
-    border: 1px solid var(--color-divider);
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 0.85rem 1.75rem;
+    background: linear-gradient(135deg, #ff512f, #f09819, #ff512f, #f09819);
+    background-size: 300% 300%;
+    color: #ffffff;
+    border: none;
     border-radius: 16px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     white-space: nowrap;
-    box-shadow: var(--shadow-raised);
-    text-transform: uppercase;
+    box-shadow: 0 8px 20px rgba(240, 152, 25, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.5);
     letter-spacing: 0.05em;
+    animation: createBtnGradient 6s ease infinite;
+    position: relative;
+    overflow: hidden;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .habit-btn-create::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.6), transparent);
+    transform: skewX(-20deg);
+    transition: all 0.7s ease;
+  }
+
+  .habit-btn-create:hover::before {
+    left: 150%;
   }
 
   .habit-btn-create:hover {
-    box-shadow: var(--shadow-raised-hover);
-    transform: translateY(-4px) scale(1.02);
-    color: var(--color-cell-done);
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 12px 30px rgba(255, 81, 47, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    color: #ffffff;
   }
 
   .habit-btn-create:active {
-    box-shadow: var(--shadow-pressed);
-    transform: translateY(2px) scale(0.98);
+    transform: translateY(2px) scale(0.95);
+    box-shadow: 0 4px 10px rgba(240, 152, 25, 0.4), inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  @keyframes createBtnGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
   .habit-input {

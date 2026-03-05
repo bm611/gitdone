@@ -199,7 +199,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                 onClick={() => { setEditingHabit(null); setShowForm(true); }}
                 className="habit-btn-create w-full sm:w-auto"
               >
-                Create New Habit
+                Create Habit
               </button>
             )}
           </div>
@@ -223,7 +223,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                 onClick={() => { setEditingHabit(null); setShowForm(true); }}
                 className="habit-btn-create w-full mb-6"
               >
-                + Create New Habit
+                + Create Habit
               </button>
             )}
 
