@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useRef } from "react";
+import { useMemo, useState, useCallback, useRef, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -21,7 +21,7 @@ interface HabitCardProps {
   onUnarchive?: () => void;
 }
 
-export function HabitCard({
+export const HabitCard = memo(function HabitCard({
   name,
   color,
   onEdit,
@@ -168,8 +168,8 @@ export function HabitCard({
             </button>
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-[100]" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 z-[110] min-w-[140px] bg-[var(--color-card)] border border-[var(--color-divider)] rounded-xl shadow-[var(--shadow-raised)] py-1 animate-in fade-in zoom-in-95 duration-150">
+                <div className="fixed inset-0 z-100" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 z-110 min-w-[140px] bg-card border border-divider rounded-xl shadow-raised py-1 animate-in fade-in zoom-in-95 duration-150">
                   {isActive && (
                     <button type="button" onClick={() => { setMenuOpen(false); onEdit(); }} className="habit-menu-item">
                       <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -217,7 +217,7 @@ export function HabitCard({
                       Unarchive
                     </button>
                   )}
-                  <div className="h-px bg-[var(--color-divider)] my-1" />
+                  <div className="h-px bg-divider my-1" />
                   <button type="button" onClick={() => { setMenuOpen(false); onDelete(); }} className="habit-menu-item text-red-500">
                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="3 6 5 6 21 6" />
@@ -243,4 +243,4 @@ export function HabitCard({
       )}
     </div>
   );
-}
+});

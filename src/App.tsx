@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useCallback, lazy, Suspense } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Doc } from "../convex/_generated/dataModel";
@@ -6,13 +6,16 @@ import type { GuestHabit } from "./lib/types";
 import { HabitCard } from "./components/HabitCard";
 import { HabitForm } from "./components/HabitForm";
 import { ConfirmDialog } from "./components/ConfirmDialog";
-import { StatsPage } from "./components/StatsPage";
 import { UserMenu } from "./components/UserMenu";
-import { SignIn, AuthForm } from "./components/SignIn";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { AnalyticsIcon, GithubIcon, GitMergeIcon } from "@hugeicons/core-free-icons";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useDisplayName } from "./lib/useDisplayName";
+
+// Lazy load large components
+const StatsPage = lazy(() => import("./components/StatsPage").then(module => ({ default: module.StatsPage })));
+const SignIn = lazy(() => import("./components/SignIn").then(module => ({ default: module.SignIn })));
+const AuthForm = lazy(() => import("./components/SignIn").then(module => ({ default: module.AuthForm })));
 type HabitDraft = { name: string; color: string; category?: string };
 
 type EditingHabitState =
@@ -33,20 +36,27 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
   const setHabitStatus = useMutation(api.habits.setStatus);
 
   const [guestHabits, setGuestHabits] = useState<GuestHabit[]>([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingHabit, setEditingHabit] = useState<EditingHabitState>(null);
-  const [deletingHabit, setDeletingHabit] = useState<DeletingHabitState>(null);
-  const [view, setView] = useState<"dashboard" | "stats">("dashboard");
-  const [showSignIn, setShowSignIn] = useState(false);
-  const [habitTab, setHabitTab] = useState<"active" | "paused" | "archived">("active");
+  const [uiState, setUiState] = useState({
+    showForm: false,
+    editingHabit: null as EditingHabitState,
+    deletingHabit: null as DeletingHabitState,
+    view: "dashboard" as "dashboard" | "stats",
+    showSignIn: false,
+    habitTab: "active" as "active" | "paused" | "archived",
+  });
   const displayName = useDisplayName();
 
-  const handleCloseForm = () => {
-    setShowForm(false);
-    setEditingHabit(null);
-  };
+  const { showForm, editingHabit, deletingHabit, view, showSignIn, habitTab } = uiState;
 
-  const handleSubmitHabit = async (values: HabitDraft) => {
+  const updateUiState = useCallback((updates: Partial<typeof uiState>) => {
+    setUiState(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  const handleCloseForm = useCallback(() => {
+    updateUiState({ showForm: false, editingHabit: null });
+  }, [updateUiState]);
+
+  const handleSubmitHabit = useCallback(async (values: HabitDraft) => {
     const category = values.category || undefined;
     if (isAuthenticated) {
       if (editingHabit?.type === "remote") {
@@ -83,9 +93,9 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         ...current,
       ];
     });
-  };
+  }, [isAuthenticated, editingHabit, updateHabit, createHabit]);
 
-  const handleToggleGuestCompletion = (habitId: string, date: string) => {
+  const handleToggleGuestCompletion = useCallback((habitId: string, date: string) => {
     setGuestHabits((current) =>
       current.map((habit) => {
         if (habit.id !== habitId) return habit;
@@ -98,21 +108,21 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         };
       }),
     );
-  };
+  }, []);
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = useCallback(() => {
     if (!deletingHabit) return;
     if (deletingHabit.type === "remote") {
       void removeHabit({ id: deletingHabit.habit._id });
-      setDeletingHabit(null);
+      updateUiState({ deletingHabit: null });
       return;
     }
 
     setGuestHabits((current) =>
       current.filter((habit) => habit.id !== deletingHabit.habit.id),
     );
-    setDeletingHabit(null);
-  };
+    updateUiState({ deletingHabit: null });
+  }, [deletingHabit, removeHabit, updateUiState]);
 
   const formValues = editingHabit
     ? { name: editingHabit.habit.name, color: editingHabit.habit.color, category: editingHabit.habit.category }
@@ -160,7 +170,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => setView(view === "dashboard" ? "stats" : "dashboard")}
+              onClick={() => updateUiState({ view: view === "dashboard" ? "stats" : "dashboard" })}
               className="inline-flex items-center text-[var(--color-ink-muted)] hover:text-[var(--color-cell-done)] transition-colors cursor-pointer bg-transparent border-none p-0 animated-icon-bounce"
               aria-label="Stats"
             >
@@ -179,7 +189,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             {isAuthenticated ? <UserMenu /> : sortedGuestHabits.length > 0 && (
               <button
                 type="button"
-                onClick={() => setShowSignIn(true)}
+                onClick={() => updateUiState({ showSignIn: true })}
                 className="luxury-btn-ghost px-3 py-1.5 text-xs font-bold"
               >
                 Sign In / Up
@@ -196,7 +206,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
             {view === "dashboard" && (
               <button
                 type="button"
-                onClick={() => { setEditingHabit(null); setShowForm(true); }}
+                onClick={() => updateUiState({ editingHabit: null, showForm: true })}
                 className="habit-btn-create w-full sm:w-auto"
               >
                 Create Habit
@@ -206,21 +216,33 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
         )}
 
         {view === "stats" ? (
-          <StatsPage
-            isAuthenticated={isAuthenticated}
-            guestHabits={guestHabits}
-            onBack={() => setView("dashboard")}
-          />
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-cell-done)]"></div>
+            </div>
+          }>
+            <StatsPage
+              isAuthenticated={isAuthenticated}
+              guestHabits={guestHabits}
+              onBack={() => updateUiState({ view: "dashboard" })}
+            />
+          </Suspense>
         ) : !isAuthenticated && sortedGuestHabits.length === 0 ? (
           <div className="py-12 flex justify-center animate-in fade-in duration-500">
-            <SignIn onStartDemo={() => { setEditingHabit(null); setShowForm(true); }} onSignIn={() => setShowSignIn(true)} />
+            <Suspense fallback={
+              <div className="animate-pulse">
+                <div className="h-32 w-64 bg-[var(--color-card)] rounded-lg"></div>
+              </div>
+            }>
+              <SignIn onStartDemo={() => { updateUiState({ editingHabit: null, showForm: true }); }} onSignIn={() => updateUiState({ showSignIn: true })} />
+            </Suspense>
           </div>
         ) : (
           <>
             {!isAuthenticated && (
               <button
                 type="button"
-                onClick={() => { setEditingHabit(null); setShowForm(true); }}
+                onClick={() => { updateUiState({ editingHabit: null, showForm: true }); }}
                 className="habit-btn-create w-full mb-6"
               >
                 + Create Habit
@@ -258,7 +280,7 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                           <button
                             key={tab}
                             type="button"
-                            onClick={() => setHabitTab(tab)}
+                            onClick={() => updateUiState({ habitTab: tab })}
                             className="flex-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 cursor-pointer border-none"
                             style={{
                               background: habitTab === tab ? "var(--color-card)" : "transparent",
@@ -293,16 +315,15 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                             color={habit.color}
                             status={(habit.status as "active" | "paused" | "archived" | undefined) ?? "active"}
                             onEdit={() => {
-                              setEditingHabit({ type: "remote", habit });
-                              setShowForm(true);
+                              updateUiState({ editingHabit: { type: "remote", habit }, showForm: true });
                             }}
                             onDelete={() =>
-                              setDeletingHabit({ type: "remote", habit })
+                              updateUiState({ deletingHabit: { type: "remote", habit } })
                             }
                             onPause={() => void setHabitStatus({ id: habit._id, status: "paused" })}
-                            onResume={() => { void setHabitStatus({ id: habit._id, status: "active" }); setHabitTab("active"); }}
+                            onResume={() => { void setHabitStatus({ id: habit._id, status: "active" }); updateUiState({ habitTab: "active" }); }}
                             onArchive={() => void setHabitStatus({ id: habit._id, status: "archived" })}
-                            onUnarchive={() => { void setHabitStatus({ id: habit._id, status: "active" }); setHabitTab("active"); }}
+                            onUnarchive={() => { void setHabitStatus({ id: habit._id, status: "active" }); updateUiState({ habitTab: "active" }); }}
                           />
                         ))}
                       </div>
@@ -322,11 +343,10 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
                     completionDates={habit.completions}
                     onToggleDate={(date) => handleToggleGuestCompletion(habit.id, date)}
                     onEdit={() => {
-                      setEditingHabit({ type: "guest", habit });
-                      setShowForm(true);
+                      updateUiState({ editingHabit: { type: "guest", habit }, showForm: true });
                     }}
                     onDelete={() =>
-                      setDeletingHabit({ type: "guest", habit })
+                      updateUiState({ deletingHabit: { type: "guest", habit } })
                     }
                   />
                 ))}
@@ -351,11 +371,11 @@ function Dashboard({ isAuthenticated }: { isAuthenticated: boolean }) {
           description="This habit and all its history will be permanently removed."
           confirmLabel="Remove"
           onConfirm={handleConfirmDelete}
-          onCancel={() => setDeletingHabit(null)}
+          onCancel={() => updateUiState({ deletingHabit: null })}
         />
       )}
 
-      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
+      {showSignIn && <SignInModal onClose={() => updateUiState({ showSignIn: false })} />}
     </div>
   );
 }
@@ -388,7 +408,13 @@ function SignInModal({ onClose }: { onClose: () => void }) {
             </svg>
           </button>
         </div>
-        <AuthForm />
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--color-cell-done)]"></div>
+          </div>
+        }>
+          <AuthForm />
+        </Suspense>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, memo } from "react";
 import type { DayCell } from "../lib/dates";
 import { generateCalendarMonthsGrid } from "../lib/dates";
 import { GridCell } from "./GridCell";
@@ -58,7 +58,7 @@ function groupByMonth(cells: DayCell[]): MonthGroup[] {
   return groups;
 }
 
-export function HabitGrid({
+export const HabitGrid = memo(function HabitGrid({
   completionDates,
   onToggleDate,
   interactive = true,
@@ -83,7 +83,7 @@ export function HabitGrid({
     <div className={`grid gap-2 sm:gap-3 ${monthWindow === 3 ? "grid-cols-3" : "grid-cols-6"}`}>
       {monthGroups.map((group) => (
         <div key={group.label} className="flex flex-col gap-1">
-          <span className="text-xs font-bold text-[var(--color-ink)] mb-0.5 truncate">
+          <span className="text-xs font-bold text-ink mb-0.5 truncate">
             <span className="hidden sm:inline">{group.label}</span>
             <span className="sm:hidden">{group.shortLabel}</span>
           </span>
@@ -113,4 +113,4 @@ export function HabitGrid({
       ))}
     </div>
   );
-}
+});
